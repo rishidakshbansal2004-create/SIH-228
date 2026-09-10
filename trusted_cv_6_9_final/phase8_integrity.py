@@ -31,6 +31,11 @@ class InferenceIntegrity:
             a=max(base,key=lambda x:x['confidence']); b=max(d,key=lambda x:x['confidence']) if d else None
             vals.append(1.0 if b and a['class_id']==b['class_id'] and self.iou(a['bbox_xyxy'],b['bbox_xyxy'])>=.5 else 0.)
         return float(np.mean(vals)),vals
+    @staticmethod
+    def _disposition(value, warn_below, fail_below):
+        if value < fail_below: return 'quarantine'
+        if value < warn_below: return 'review'
+        return 'accept'
     def evaluate_frame(self,img,dets,gate,conf=.25,iou=.45,do_robustness=True):
         cs=self.confidence_stats(dets); c=cs['mean']
         # Calibration proxy: confidence is penalized when the model is weak.
@@ -42,10 +47,44 @@ class InferenceIntegrity:
         score=float(.25*calibration+.30*robust+.25*confidence+.20*shift)
         if gate.ood: score=min(score,.49)
         status='RELIABLE' if score>=.75 else ('LOW_CONFIDENCE' if score>=.50 else 'FLAGGED')
-        return {'status':status,'reliability_score':score,
+
+        # Per-flag disposition (PS 2.2.5): every check gets its own reason,
+        # evidence, confidence and recommended action, not just one
+        # aggregate status. Judges/analysts read this list, not the score.
+        flags=[
+            {'check':'calibration','value':calibration,'confidence':calibration,
+             'disposition':self._disposition(calibration,.60,.35),
+             'reason':('Mean detection confidence is low, so calibration is unreliable.'
+                       if calibration<.60 else 'Mean detection confidence is within a normal range.'),
+             'evidence':{'mean_confidence':cs['mean'],'detection_count':cs['count']}},
+            {'check':'robustness','value':robust,'confidence':robust,
+             'disposition':self._disposition(robust,.60,.35),
+             'reason':('Top detection changed class or location under small photometric/resize perturbations.'
+                       if robust<.60 else 'Top detection was stable under small perturbations.'),
+             'evidence':{'per_variant_scores':detail}},
+            {'check':'confidence','value':confidence,'confidence':confidence,
+             'disposition':self._disposition(confidence,.60,.35),
+             'reason':('Detections carry low confidence / high uncertainty.'
+                       if confidence<.60 else 'Detections carry adequate confidence.'),
+             'evidence':{'uncertainty':uncertainty,'confidence_stats':cs}},
+            {'check':'ood_distribution_consistency','value':shift,'confidence':shift,
+             'disposition':'quarantine' if gate.ood else self._disposition(shift,.60,.35),
+             'reason':(f"Phase 6 OOD gate flagged this input: {', '.join(gate.reasons) or 'risk threshold exceeded'}."
+                       if gate.ood else 'Consistent with Phase 6 in-distribution assessment.'),
+             'evidence':{'phase6_risk_score':gate.risk_score,'phase6_reasons':gate.reasons}},
+        ]
+        overall_disposition='quarantine' if any(f['disposition']=='quarantine' for f in flags) else \
+                             ('review' if any(f['disposition']=='review' for f in flags) else 'accept')
+
+        return {'status':status,'reliability_score':score,'disposition':overall_disposition,
                 'components':{'calibration':calibration,'robustness':robust,'confidence':confidence,'uncertainty':uncertainty,'ood_distribution_consistency':shift},
+                'flags':flags,
                 'confidence_stats':cs,'accuracy':{'available':False,'value':None,'note':'Ground truth required for actual accuracy.'},
-                'robustness_details':detail}
+                'robustness_details':detail,
+                'access_level':'white_box',
+                'limitations':['Does not perform backdoor/trigger detection on the model itself — see Phase 4 model verification.',
+                                'Robustness probe uses only photometric/resize perturbations, not adversarial optimization.',
+                                'OOD assessment is model-derived and calibration-free; no ground-truth ID/OOD dataset is used.']}
     @staticmethod
     def evaluate_accuracy(predicted,true):
         n=min(len(predicted),len(true)); return {'available':bool(n),'value':float(np.mean(np.asarray(predicted[:n])==np.asarray(true[:n]))) if n else None,'n':n}

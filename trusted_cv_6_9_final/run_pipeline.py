@@ -18,9 +18,12 @@ def process_frame(frame, source_name, gate, detector, integrity, ledger, args):
     # PHASE 8
     integrity_result=integrity.evaluate_frame(frame,dets,g,args.conf,args.iou,not args.no_robustness)
     # PHASE 9
-    event={'schema_version':'3.0','timestamp_utc':utc_now(),'source':source_name,
+    event={'schema_version':'3.1','timestamp_utc':utc_now(),'source':source_name,
            'model_sha256':sha256_file(args.weights) if Path(args.weights).exists() else None,
-           'detections':dets,'phase6_ood':g.to_dict(),'phase8_integrity':integrity_result}
+           'access_level':integrity_result.get('access_level','white_box'),
+           'disposition':integrity_result.get('disposition'),
+           'detections':dets,'phase6_ood':g.to_dict(),'phase8_integrity':integrity_result,
+           'limitations':integrity_result.get('limitations',[])}
     event['inference_record_sha256']=sha256_bytes(canonical_json(event))
     entry=ledger.append(event)
     return g,dets,integrity_result,entry

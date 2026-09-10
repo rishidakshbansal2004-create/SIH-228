@@ -31,6 +31,39 @@ class GateResult:
 class OODGate:
     def __init__(self, detector=None):
         self.detector = detector
+        # Defaults match the original hardcoded thresholds; fit() overrides
+        # these from a small set of known-in-distribution images so the
+        # gate isn't just magic numbers picked by hand.
+        self.low_conf_threshold=.35
+        self.low_margin_threshold=.15
+        self.risk_threshold=.60
+
+    def fit(self, image_paths):
+        """Calibrate thresholds from known-normal deployment images.
+
+        Sets low_conf_threshold / low_margin_threshold to just below what
+        normal images actually score, and risk_threshold from the resulting
+        risk distribution, instead of using the hand-picked defaults above.
+        """
+        if self.detector is None:
+            raise RuntimeError('OODGate.fit requires a loaded YOLO model (pass detector=...).')
+        tops,margins,risks=[],[],[]
+        for p in image_paths:
+            img=cv2.imread(str(p))
+            if img is None: continue
+            base=self._predict(img)
+            tops.append(self._top_score(base)); margins.append(self._margin(base))
+            risks.append(self.check(img).risk_score)
+        if not tops:
+            raise RuntimeError('No readable calibration images found.')
+        self.low_conf_threshold=float(np.percentile(tops,10))
+        self.low_margin_threshold=float(np.percentile(margins,10))
+        self.risk_threshold=float(np.clip(np.percentile(risks,90),.30,.90))
+        return {'calibration_count':len(tops),
+                'feature_distance_threshold':self.low_conf_threshold,
+                'mls_threshold':self.low_margin_threshold,
+                'energy_threshold':self.risk_threshold,
+                'image_shift_threshold':self.risk_threshold}
 
     @staticmethod
     def _quality(img):
@@ -88,19 +121,21 @@ class OODGate:
         ]
         consistency=float(np.mean([self._same(base,self._predict(v,conf,iou)) for v in variants])) if base else 0.0
 
-        # Calibration-free risk heuristics. Values are normalized, not learned
-        # from a user dataset. Very low confidence + instability is the main OOD cue.
-        low_conf=max(0.0,(0.35-top)/0.35)
-        low_margin=max(0.0,(0.15-margin)/0.15)
+        # Risk heuristics. Thresholds default to hand-picked values but are
+        # overridden by fit() when calibration images are available (see
+        # calibrate.py), so this is calibration-optional, not calibration-free.
+        lc,lm,rt=self.low_conf_threshold,self.low_margin_threshold,self.risk_threshold
+        low_conf=max(0.0,(lc-top)/lc)
+        low_margin=max(0.0,(lm-margin)/lm)
         instability=1.0-consistency
         quality_bad=float(bright<.05 or bright>.97 or contrast<.04 or sharp<8.0)
         risk=float(np.clip(.40*low_conf+.20*low_margin+.30*instability+.10*quality_bad,0,1))
 
         reasons=[]
-        if top < .25: reasons.append('very low model confidence')
-        if margin < .10 and len(base)>1: reasons.append('ambiguous prediction margin')
+        if top < lc*0.7: reasons.append('very low model confidence')
+        if margin < lm*0.7 and len(base)>1: reasons.append('ambiguous prediction margin')
         if consistency < .67 and base: reasons.append('prediction changes under perturbation')
         if quality_bad: reasons.append('extreme camera/image quality')
-        ood = risk >= .60
+        ood = risk >= rt
         return GateResult('OOD' if ood else 'NORMAL',ood,risk, float(1+2*risk), float(top), float(-np.log(max(top,1e-6))), float(1-consistency), reasons,
                           {'top_confidence':top,'confidence_margin':margin,'perturbation_consistency':consistency,'detection_count':len(base),'brightness':bright,'contrast':contrast,'saturation':sat,'sharpness':sharp})
