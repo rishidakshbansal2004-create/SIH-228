@@ -1,0 +1,11 @@
+{
+  "models": {
+    "cfbeda779540f610bc1b5cc69a63aa303a68f0326c7b821c03c3bfe4f1ac5b82": {
+      "vendor": "TrustCV Demo Team",
+      "version": "best.pt (bundled demo weights)",
+      "signed": true,
+      "provenance": "Trained and packaged as part of this repository; treat as a demo entry, not a real vendor signature."
+    }
+  },
+  "datasets": {}
+}
