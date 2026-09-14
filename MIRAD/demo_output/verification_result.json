@@ -1,0 +1,112 @@
+{
+  "checkpoint": {
+    "checkpoint_trusted": true,
+    "content_valid": true,
+    "failure_code": null,
+    "key_known": true,
+    "key_trusted": true,
+    "schema_valid": true,
+    "signature_valid": true,
+    "trust_anchor_valid": true
+  },
+  "dataset": {
+    "checks": {
+      "artifact_digest": true,
+      "artifact_identity": true,
+      "manifest_integrity": null,
+      "registration_status": true,
+      "trust_anchor": true
+    },
+    "evidence": {
+      "candidate": {
+        "artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+        "artifact_id": "demo-dataset",
+        "artifact_type": "DATASET",
+        "format": "bin",
+        "version": "v1"
+      },
+      "computed_artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+      "reference": {
+        "identity": {
+          "artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+          "artifact_id": "demo-dataset",
+          "artifact_type": "DATASET",
+          "format": "bin",
+          "version": "v1"
+        },
+        "parent_version": null,
+        "registration_timestamp": "2026-09-14T18:32:11Z",
+        "status": "APPROVED",
+        "supersedes": null,
+        "trust_metadata": {}
+      }
+    },
+    "failure_codes": [],
+    "limitations": [
+      "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+      "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+    ],
+    "reason": "Candidate artifact matches the trusted registered reference.",
+    "status": "VERIFIED",
+    "unavailable_checks": [],
+    "valid": true
+  },
+  "model": {
+    "checks": {
+      "artifact_digest": true,
+      "artifact_identity": true,
+      "manifest_integrity": null,
+      "registration_status": true,
+      "trust_anchor": true
+    },
+    "evidence": {
+      "candidate": {
+        "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+        "artifact_id": "demo-model",
+        "artifact_type": "MODEL",
+        "format": "onnx",
+        "version": "v1"
+      },
+      "computed_artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+      "reference": {
+        "identity": {
+          "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+          "artifact_id": "demo-model",
+          "artifact_type": "MODEL",
+          "format": "onnx",
+          "version": "v1"
+        },
+        "parent_version": null,
+        "registration_timestamp": "2026-09-14T18:32:11Z",
+        "status": "APPROVED",
+        "supersedes": null,
+        "trust_metadata": {}
+      }
+    },
+    "failure_codes": [],
+    "limitations": [
+      "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+      "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+    ],
+    "reason": "Candidate artifact matches the trusted registered reference.",
+    "status": "VERIFIED",
+    "unavailable_checks": [],
+    "valid": true
+  },
+  "overall": true,
+  "policy": true,
+  "provenance": {
+    "failure_code": null,
+    "key_known": true,
+    "key_trusted": true,
+    "policy_valid": true,
+    "provenance_trusted": true,
+    "schema_valid": true,
+    "signature_valid": true,
+    "trust_anchor_valid": true
+  },
+  "schema": true,
+  "signature": true,
+  "signing_key": true,
+  "trust_anchor": true
+}

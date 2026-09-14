@@ -1,0 +1,608 @@
+{
+  "artifact_verification": {
+    "status": "VERIFIED",
+    "valid": true
+  },
+  "attacks": [
+    {
+      "affected_field": "output_digest",
+      "attack_type": "PROVENANCE_TAMPERING",
+      "disposition": "REJECTED",
+      "failure_code": "INVALID_SIGNATURE",
+      "modified_value": "sha256:2ba5c5f34800e1c8c68cea5931c0d9d525738a25439447e9529d3645cc7c2ae0",
+      "original_value": "sha256:c00883f198305d3849ec1c24d824fe1038bf5df95d4718a26193b57a96396d5d",
+      "provenance_trusted": false,
+      "signature_valid": false
+    },
+    {
+      "affected_field": "model_digest",
+      "attack_type": "PROVENANCE_TAMPERING",
+      "disposition": "REJECTED",
+      "failure_code": "INVALID_SIGNATURE",
+      "modified_value": "sha256:51580867ef4e477920a9723c9f7def971a0ed5155c83c6dcfee52800f59d9e42",
+      "original_value": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+      "provenance_trusted": false,
+      "signature_valid": false
+    },
+    {
+      "affected_field": "input_digest",
+      "attack_type": "INPUT_TAMPERING",
+      "detected": true,
+      "disposition": "QUARANTINE",
+      "modified_value": "sha256:08818b869aae80b788337f435595fb6767453c925d2851e2bd84b23295b4d150",
+      "original_value": "sha256:8de3e9de310a62fc778f20eddfcb998fc5526ae386ce37791ccd7460c3a74877"
+    },
+    {
+      "affected_field": "output_digest",
+      "attack_type": "OUTPUT_TAMPERING",
+      "detected": true,
+      "disposition": "QUARANTINE",
+      "modified_value": "sha256:222af5335bcc7ac6e20c308b2dce093153ccafdb9a6ea9a17ecfe05405d2c74e",
+      "original_value": "sha256:c00883f198305d3849ec1c24d824fe1038bf5df95d4718a26193b57a96396d5d"
+    },
+    {
+      "affected_field": "artifact_digest",
+      "attack_type": "MODEL_TAMPERING",
+      "detected": true,
+      "disposition": "QUARANTINE",
+      "failure_code": "MODEL_DIGEST_MISMATCH",
+      "modified_value": "sha256:449e1125c08d408f3121f868bc906f81cc947c274b99e15865d855b5054cc447",
+      "original_value": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654"
+    },
+    {
+      "affected_field": "artifact_digest",
+      "attack_type": "DATASET_TAMPERING",
+      "detected": true,
+      "disposition": "REVIEW",
+      "failure_code": "DATASET_DIGEST_MISMATCH",
+      "modified_value": "sha256:523c49a6fe08d053c400e6f51c3cb977f2c8c416ed972af44319d1e37721b1af",
+      "original_value": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d"
+    },
+    {
+      "affected_field": "payload.digest",
+      "attack_type": "AUDIT_TAMPERING",
+      "detected": true,
+      "disposition": "REJECTED",
+      "failure_code": "AUDIT_CHAIN_BROKEN"
+    }
+  ],
+  "audit": {
+    "chain_valid": true,
+    "records": [
+      {
+        "actor": "mirad-demo",
+        "audit_id": "audit-000001",
+        "current_hash": "sha256:00df732031094cc22f9355558939aee44c79696573bf85bbcb9a294fbdbe2d25",
+        "event_type": "MODEL_VERIFICATION",
+        "payload": {
+          "checks": {
+            "artifact_digest": true,
+            "artifact_identity": true,
+            "manifest_integrity": null,
+            "registration_status": true,
+            "trust_anchor": true
+          },
+          "evidence": {
+            "candidate": {
+              "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+              "artifact_id": "demo-model",
+              "artifact_type": "MODEL",
+              "format": "onnx",
+              "version": "v1"
+            },
+            "computed_artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+            "reference": {
+              "identity": {
+                "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+                "artifact_id": "demo-model",
+                "artifact_type": "MODEL",
+                "format": "onnx",
+                "version": "v1"
+              },
+              "parent_version": null,
+              "registration_timestamp": "2026-09-14T18:32:11Z",
+              "status": "APPROVED",
+              "supersedes": null,
+              "trust_metadata": {}
+            }
+          },
+          "failure_codes": [],
+          "limitations": [
+            "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+            "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+          ],
+          "reason": "Candidate artifact matches the trusted registered reference.",
+          "status": "VERIFIED",
+          "unavailable_checks": [],
+          "valid": true
+        },
+        "previous_hash": null,
+        "sequence": 1,
+        "timestamp": "2026-09-14T18:32:11Z"
+      },
+      {
+        "actor": "mirad-demo",
+        "audit_id": "audit-000002",
+        "current_hash": "sha256:93d6a928b624a17fc968532d7c3127dea4c88711c405143d5f02e6df8cef554b",
+        "event_type": "INPUT_VERIFICATION",
+        "payload": {
+          "digest": "sha256:8de3e9de310a62fc778f20eddfcb998fc5526ae386ce37791ccd7460c3a74877"
+        },
+        "previous_hash": "sha256:00df732031094cc22f9355558939aee44c79696573bf85bbcb9a294fbdbe2d25",
+        "sequence": 2,
+        "timestamp": "2026-09-14T18:32:11Z"
+      },
+      {
+        "actor": "mirad-demo",
+        "audit_id": "audit-000003",
+        "current_hash": "sha256:eb125acf66a965719d651780920675c58ddc3393fee7206a4bdd7c233586deba",
+        "event_type": "PROVENANCE_CREATED",
+        "payload": {
+          "event_id": "evt-demo-001"
+        },
+        "previous_hash": "sha256:93d6a928b624a17fc968532d7c3127dea4c88711c405143d5f02e6df8cef554b",
+        "sequence": 3,
+        "timestamp": "2026-09-14T18:32:11Z"
+      },
+      {
+        "actor": "mirad-demo",
+        "audit_id": "audit-000004",
+        "current_hash": "sha256:124c07af3bae8d9769ffa33ac5d90e98aad20fda93120f6e210f9fb5b49f245e",
+        "event_type": "PROVENANCE_VERIFIED",
+        "payload": {
+          "failure_code": null,
+          "key_known": true,
+          "key_trusted": true,
+          "policy_valid": true,
+          "provenance_trusted": true,
+          "schema_valid": true,
+          "signature_valid": true,
+          "trust_anchor_valid": true
+        },
+        "previous_hash": "sha256:eb125acf66a965719d651780920675c58ddc3393fee7206a4bdd7c233586deba",
+        "sequence": 4,
+        "timestamp": "2026-09-14T18:32:11Z"
+      },
+      {
+        "actor": "mirad-demo",
+        "audit_id": "audit-000005",
+        "current_hash": "sha256:2527bf2ee7382c1e7bcb261b9b56d8f966f3169eae01d5117201f07a53112477",
+        "event_type": "REPLAY_CHECK",
+        "payload": {
+          "first": true,
+          "replay": "DUPLICATE_EVENT"
+        },
+        "previous_hash": "sha256:124c07af3bae8d9769ffa33ac5d90e98aad20fda93120f6e210f9fb5b49f245e",
+        "sequence": 5,
+        "timestamp": "2026-09-14T18:32:11Z"
+      },
+      {
+        "actor": "mirad-demo",
+        "audit_id": "audit-000006",
+        "current_hash": "sha256:829995153a5438907363d2ae70c6e0a3f84fcda989bef56690030c7e6a63b59f",
+        "event_type": "SECURITY_FINDING",
+        "payload": {
+          "attack": "OUTPUT_TAMPERING"
+        },
+        "previous_hash": "sha256:2527bf2ee7382c1e7bcb261b9b56d8f966f3169eae01d5117201f07a53112477",
+        "sequence": 6,
+        "timestamp": "2026-09-14T18:32:11Z"
+      },
+      {
+        "actor": "mirad-demo",
+        "audit_id": "audit-000007",
+        "current_hash": "sha256:e63be7e98483d274b72cbdb8e277e5363e40b8dc30194f6c0421a045c08b8c21",
+        "event_type": "CHECKPOINT_CREATED",
+        "payload": {
+          "planned_latest_sequence": 7
+        },
+        "previous_hash": "sha256:829995153a5438907363d2ae70c6e0a3f84fcda989bef56690030c7e6a63b59f",
+        "sequence": 7,
+        "timestamp": "2026-09-14T18:32:11Z"
+      }
+    ]
+  },
+  "checkpoint": {
+    "record": {
+      "canonicalization_version": "1.0",
+      "checkpoint_id": "checkpoint-demo-001",
+      "latest_audit_hash": "sha256:e63be7e98483d274b72cbdb8e277e5363e40b8dc30194f6c0421a045c08b8c21",
+      "latest_sequence": 7,
+      "public_key": "5BdZPsHH7GY7GnycKqSDvKxldf7rTlNdOWGmf7CmGbY=",
+      "schema_version": "1.0",
+      "signature": "MPjNNkBdNDEqsn1dR1bhFsctphhNZchBI+sU4BZ5N8QL+4piUTGl0PUzI9mpApGqwKYF8k8xJDmZNpE/MfnqCA==",
+      "signing_key_id": "demo-key",
+      "timestamp": "2026-09-14T18:32:11Z",
+      "trust_anchor_id": "default"
+    },
+    "verification": {
+      "checkpoint_trusted": true,
+      "content_valid": true,
+      "failure_code": null,
+      "key_known": true,
+      "key_trusted": true,
+      "schema_valid": true,
+      "signature_valid": true,
+      "trust_anchor_valid": true
+    }
+  },
+  "dataset": {
+    "admission": {
+      "checks": {
+        "artifact_digest": true,
+        "artifact_identity": true,
+        "manifest_integrity": null,
+        "registration_status": true,
+        "trust_anchor": true
+      },
+      "evidence": {
+        "candidate": {
+          "artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+          "artifact_id": "demo-dataset",
+          "artifact_type": "DATASET",
+          "format": "bin",
+          "version": "v1"
+        },
+        "computed_artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+        "reference": {
+          "identity": {
+            "artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+            "artifact_id": "demo-dataset",
+            "artifact_type": "DATASET",
+            "format": "bin",
+            "version": "v1"
+          },
+          "parent_version": null,
+          "registration_timestamp": "2026-09-14T18:32:11Z",
+          "status": "APPROVED",
+          "supersedes": null,
+          "trust_metadata": {}
+        }
+      },
+      "failure_codes": [],
+      "limitations": [
+        "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+        "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+      ],
+      "reason": "Candidate artifact matches the trusted registered reference.",
+      "status": "VERIFIED",
+      "unavailable_checks": [],
+      "valid": true
+    },
+    "digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+    "identity": {
+      "artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+      "artifact_id": "demo-dataset",
+      "artifact_type": "DATASET",
+      "format": "bin",
+      "version": "v1"
+    }
+  },
+  "final_assurance": {
+    "attacked_events": "REJECTED_OR_QUARANTINED",
+    "audit_chain": true,
+    "checkpoint": true,
+    "dataset_admission": true,
+    "model_admission": true,
+    "original_event": "TRUSTED"
+  },
+  "findings": [
+    {
+      "affected_asset": "demo-model/inference-output",
+      "affected_asset_type": "OUTPUT",
+      "asset_digest": "sha256:222af5335bcc7ac6e20c308b2dce093153ccafdb9a6ea9a17ecfe05405d2c74e",
+      "asset_version": "v1",
+      "audit_event_id": null,
+      "confidence": 0.0,
+      "evidence": {
+        "expected_digest": "sha256:c00883f198305d3849ec1c24d824fe1038bf5df95d4718a26193b57a96396d5d",
+        "observed_digest": "sha256:222af5335bcc7ac6e20c308b2dce093153ccafdb9a6ea9a17ecfe05405d2c74e"
+      },
+      "finding_id": "finding-output-integrity-001",
+      "finding_type": "OUTPUT_DIGEST_MISMATCH",
+      "limitations": [
+        "Integrity mismatch does not establish attacker identity or malicious intent."
+      ],
+      "provenance_id": "evt-demo-001",
+      "reason": "Observed output digest differs from the digest bound to signed provenance.",
+      "recommended_disposition": "QUARANTINE",
+      "schema_version": "1.0",
+      "severity": "HIGH",
+      "timestamp": "2026-09-14T18:32:11Z"
+    }
+  ],
+  "first_replay_check": {
+    "status": "VALID",
+    "valid": true
+  },
+  "generated_artifact_paths": {
+    "audit": "demo_output\\audit_log.json",
+    "checkpoint": "demo_output\\checkpoint.json",
+    "provenance": "demo_output\\provenance.json",
+    "report": "demo_output\\security_demo_report.json",
+    "verification": "demo_output\\verification_result.json"
+  },
+  "inference": {
+    "inference_config": {
+      "confidence_threshold": 0.5,
+      "nms": {
+        "enabled": true,
+        "iou": 0.45
+      }
+    },
+    "inference_config_digest": "sha256:36c7fb2123f7f134c7bd99ffe537d2730f18de2e85a156a97bcefe8d8f95e16e",
+    "output_digest": "sha256:c00883f198305d3849ec1c24d824fe1038bf5df95d4718a26193b57a96396d5d",
+    "preprocessing": {
+      "color_format": "RGB",
+      "normalization": "uint8_to_float32",
+      "resize": [
+        640,
+        640
+      ]
+    },
+    "preprocessing_digest": "sha256:5f25dafec10fac8aee5ee920a8e41575ae87a9dc90d1593a7123c0b557622365"
+  },
+  "inputs": {
+    "digest": "sha256:8de3e9de310a62fc778f20eddfcb998fc5526ae386ce37791ccd7460c3a74877"
+  },
+  "limitations": [
+    "DEMO FIXTURE; not a real operational model.",
+    "Artifact integrity does not prove behavioral safety or contributor intent.",
+    "Audit chaining is tamper-evident, not absolute immutability."
+  ],
+  "model": {
+    "admission": {
+      "checks": {
+        "artifact_digest": true,
+        "artifact_identity": true,
+        "manifest_integrity": null,
+        "registration_status": true,
+        "trust_anchor": true
+      },
+      "evidence": {
+        "candidate": {
+          "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+          "artifact_id": "demo-model",
+          "artifact_type": "MODEL",
+          "format": "onnx",
+          "version": "v1"
+        },
+        "computed_artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+        "reference": {
+          "identity": {
+            "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+            "artifact_id": "demo-model",
+            "artifact_type": "MODEL",
+            "format": "onnx",
+            "version": "v1"
+          },
+          "parent_version": null,
+          "registration_timestamp": "2026-09-14T18:32:11Z",
+          "status": "APPROVED",
+          "supersedes": null,
+          "trust_metadata": {}
+        }
+      },
+      "failure_codes": [],
+      "limitations": [
+        "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+        "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+      ],
+      "reason": "Candidate artifact matches the trusted registered reference.",
+      "status": "VERIFIED",
+      "unavailable_checks": [],
+      "valid": true
+    },
+    "digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+    "identity": {
+      "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+      "artifact_id": "demo-model",
+      "artifact_type": "MODEL",
+      "format": "onnx",
+      "version": "v1"
+    },
+    "trusted_reference": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654"
+  },
+  "provenance": {
+    "canonicalization_version": "1.0",
+    "context": "offline-demo",
+    "dataset_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+    "dataset_identity": "demo-dataset",
+    "event_id": "evt-demo-001",
+    "hash_algorithm": "sha256",
+    "inference_config_digest": "sha256:36c7fb2123f7f134c7bd99ffe537d2730f18de2e85a156a97bcefe8d8f95e16e",
+    "input_digest": "sha256:8de3e9de310a62fc778f20eddfcb998fc5526ae386ce37791ccd7460c3a74877",
+    "key_id": "demo-key",
+    "metadata": {
+      "fixture": "DEMO FIXTURE - NOT A REAL OPERATIONAL MODEL"
+    },
+    "model_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+    "model_identity": "demo-model",
+    "nonce": "nonce-demo-001",
+    "output_digest": "sha256:c00883f198305d3849ec1c24d824fe1038bf5df95d4718a26193b57a96396d5d",
+    "preprocessing_digest": "sha256:5f25dafec10fac8aee5ee920a8e41575ae87a9dc90d1593a7123c0b557622365",
+    "provenance_version": "1.0",
+    "public_key": "5BdZPsHH7GY7GnycKqSDvKxldf7rTlNdOWGmf7CmGbY=",
+    "sequence": 1,
+    "signature": "DQ5GY88a2HzN1USycgbwhjU/pSaHB8zxyZ6/VBq8lL+p1fvfxS5KmJ8MvY61YlpSLeftAt9Nnjoy3qw1Ycp3BQ==",
+    "signature_algorithm": "ed25519",
+    "timestamp": "2026-09-14T18:32:11Z",
+    "trust_anchor_id": "default",
+    "verification_policy_version": "1.0"
+  },
+  "provenance_verification": {
+    "checkpoint": {
+      "checkpoint_trusted": true,
+      "content_valid": true,
+      "failure_code": null,
+      "key_known": true,
+      "key_trusted": true,
+      "schema_valid": true,
+      "signature_valid": true,
+      "trust_anchor_valid": true
+    },
+    "dataset": {
+      "checks": {
+        "artifact_digest": true,
+        "artifact_identity": true,
+        "manifest_integrity": null,
+        "registration_status": true,
+        "trust_anchor": true
+      },
+      "evidence": {
+        "candidate": {
+          "artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+          "artifact_id": "demo-dataset",
+          "artifact_type": "DATASET",
+          "format": "bin",
+          "version": "v1"
+        },
+        "computed_artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+        "reference": {
+          "identity": {
+            "artifact_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+            "artifact_id": "demo-dataset",
+            "artifact_type": "DATASET",
+            "format": "bin",
+            "version": "v1"
+          },
+          "parent_version": null,
+          "registration_timestamp": "2026-09-14T18:32:11Z",
+          "status": "APPROVED",
+          "supersedes": null,
+          "trust_metadata": {}
+        }
+      },
+      "failure_codes": [],
+      "limitations": [
+        "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+        "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+      ],
+      "reason": "Candidate artifact matches the trusted registered reference.",
+      "status": "VERIFIED",
+      "unavailable_checks": [],
+      "valid": true
+    },
+    "model": {
+      "checks": {
+        "artifact_digest": true,
+        "artifact_identity": true,
+        "manifest_integrity": null,
+        "registration_status": true,
+        "trust_anchor": true
+      },
+      "evidence": {
+        "candidate": {
+          "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+          "artifact_id": "demo-model",
+          "artifact_type": "MODEL",
+          "format": "onnx",
+          "version": "v1"
+        },
+        "computed_artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+        "reference": {
+          "identity": {
+            "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+            "artifact_id": "demo-model",
+            "artifact_type": "MODEL",
+            "format": "onnx",
+            "version": "v1"
+          },
+          "parent_version": null,
+          "registration_timestamp": "2026-09-14T18:32:11Z",
+          "status": "APPROVED",
+          "supersedes": null,
+          "trust_metadata": {}
+        }
+      },
+      "failure_codes": [],
+      "limitations": [
+        "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+        "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+      ],
+      "reason": "Candidate artifact matches the trusted registered reference.",
+      "status": "VERIFIED",
+      "unavailable_checks": [],
+      "valid": true
+    },
+    "overall": true,
+    "policy": true,
+    "provenance": {
+      "failure_code": null,
+      "key_known": true,
+      "key_trusted": true,
+      "policy_valid": true,
+      "provenance_trusted": true,
+      "schema_valid": true,
+      "signature_valid": true,
+      "trust_anchor_valid": true
+    },
+    "schema": true,
+    "signature": true,
+    "signing_key": true,
+    "trust_anchor": true
+  },
+  "provenance_verification_legacy": true,
+  "replay": {
+    "first": {
+      "checks": {
+        "context_valid": true,
+        "duplicate_event": true,
+        "freshness": true,
+        "nonce_reuse": true,
+        "sequence_valid": true
+      },
+      "evidence": {
+        "event": {
+          "context": "offline-demo",
+          "event_id": "evt-demo-001",
+          "nonce": "nonce-demo-001",
+          "sequence": 1,
+          "timestamp": "2026-09-14T18:32:11Z"
+        },
+        "scope": "session"
+      },
+      "failure_code": null,
+      "reason": "",
+      "status": "VALID",
+      "valid": true
+    },
+    "replay": {
+      "checks": {
+        "duplicate_event": false
+      },
+      "evidence": {
+        "event": {
+          "context": "offline-demo",
+          "event_id": "evt-demo-001",
+          "nonce": "nonce-demo-001",
+          "sequence": 1,
+          "timestamp": "2026-09-14T18:32:11Z"
+        },
+        "scope": "session"
+      },
+      "failure_code": "DUPLICATE_EVENT",
+      "reason": "Duplicate event_id seen within the replay scope.",
+      "status": "INVALID",
+      "valid": false
+    }
+  },
+  "replay_check": {
+    "reason": "Duplicate event_id seen within the replay scope.",
+    "status": "INVALID",
+    "valid": false
+  },
+  "run_metadata": {
+    "fixture": true,
+    "generated_at": "2026-09-14T18:32:11.715476+00:00",
+    "offline": true
+  },
+  "security_control_trace": {
+    "attack": "Modify stored inference output",
+    "control": "Output digest plus signed provenance",
+    "decision": "QUARANTINE",
+    "evidence": "Output digest mismatch",
+    "threat": "Inference record substitution"
+  },
+  "status": "ok"
+}

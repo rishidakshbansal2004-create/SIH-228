@@ -1,0 +1,27 @@
+{
+  "canonicalization_version": "1.0",
+  "context": "offline-demo",
+  "dataset_digest": "sha256:28fddfd911c444d9669dabe861c81e1e981dacebb70533709d7e22b9cf92ed6d",
+  "dataset_identity": "demo-dataset",
+  "event_id": "evt-demo-001",
+  "hash_algorithm": "sha256",
+  "inference_config_digest": "sha256:36c7fb2123f7f134c7bd99ffe537d2730f18de2e85a156a97bcefe8d8f95e16e",
+  "input_digest": "sha256:8de3e9de310a62fc778f20eddfcb998fc5526ae386ce37791ccd7460c3a74877",
+  "key_id": "demo-key",
+  "metadata": {
+    "fixture": "DEMO FIXTURE - NOT A REAL OPERATIONAL MODEL"
+  },
+  "model_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+  "model_identity": "demo-model",
+  "nonce": "nonce-demo-001",
+  "output_digest": "sha256:2ba5c5f34800e1c8c68cea5931c0d9d525738a25439447e9529d3645cc7c2ae0",
+  "preprocessing_digest": "sha256:5f25dafec10fac8aee5ee920a8e41575ae87a9dc90d1593a7123c0b557622365",
+  "provenance_version": "1.0",
+  "public_key": "5BdZPsHH7GY7GnycKqSDvKxldf7rTlNdOWGmf7CmGbY=",
+  "sequence": 1,
+  "signature": "DQ5GY88a2HzN1USycgbwhjU/pSaHB8zxyZ6/VBq8lL+p1fvfxS5KmJ8MvY61YlpSLeftAt9Nnjoy3qw1Ycp3BQ==",
+  "signature_algorithm": "ed25519",
+  "timestamp": "2026-09-14T18:32:11Z",
+  "trust_anchor_id": "default",
+  "verification_policy_version": "1.0"
+}
