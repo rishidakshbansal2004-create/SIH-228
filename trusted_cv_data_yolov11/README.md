@@ -1,59 +1,89 @@
-# TrustCV ONE FINAL — Security Grade Prototype
+# TrustCV — Trustworthy Computer Vision Integrity Assurance
 
-This version fixes the prior verification failure semantics.
+> Smart India Hackathon 2026 — SIH-228
 
-### Model verification
-- SHA-256 identity
-- optional signed manifest
-- vendor/version/provenance checks
-- safe PyTorch `weights_only=True` inspection
-- explicit execution gate
-- exact load error when an authorized model cannot load
+TrustCV is a security-oriented Computer Vision assurance layer designed to verify AI models, datasets, and inference inputs before they are trusted in a multi-contributor pipeline.
 
-IMPORTANT: TrustCV intentionally does not deserialize arbitrary uploaded `.pt` objects before
-the model has passed the authenticity gate. A `.pt` file is commonly a pickle-based artifact,
-and unsafe deserialization can execute Python code. A safe inspection rejection therefore means
-"not safely inspectable by this adapter", not automatically "corrupt" or "malicious".
+The system combines cryptographic verification, provenance checks, dataset integrity analysis, anomaly screening, Out-of-Distribution (OOD) detection, distribution-shift analysis, reliability testing, and audit logging into a unified security workflow.
 
-### Dataset
-CSV, Excel, image ZIP, individual image.
-Visual orientation, duplicate and visual outlier screens.
+---
 
-### Input
-Test image, hash, model inference (authorized/existing model), reference OOD and shift.
+## Problem Statement
 
-### Reliability
-Benign brightness and flip consistency.
+Modern Computer Vision systems often depend on AI models and datasets received from multiple contributors, vendors, repositories, and deployment environments.
 
-### Audit
-Hash-linked local audit ledger with export.
+This creates several security and trust risks, including:
 
-### Run
-```powershell
-python -m pip install -r requirements.txt
-python -m streamlit run trustcv_final.py --server.port 8503
-```
+- Model tampering
+- Untrusted model artifacts
+- Dataset corruption
+- Data poisoning
+- Duplicate or anomalous samples
+- Out-of-Distribution inputs
+- Distribution shift
+- Inconsistent model behaviour
+- Lack of traceable verification evidence
 
-Open:
-http://localhost:8503
+TrustCV addresses these risks through a layered verification and trust-assurance pipeline.
 
-Your existing `C:\Users\vasan\yolo11n.pt` is automatically detected as the local demo baseline.
+---
 
-For an uploaded model to be executed, supply a signed manifest containing:
-expected_sha256, vendor, version, provenance, signature, public_key_pem.
+## TrustCV Security Pipeline
 
-Hash PASS alone never means authenticity PASS.
-
-
-## Create a signed demo manifest
-
-```powershell
-python sign_model.py C:\Users\vasan\yolo11n.pt "Approved Demo Vendor" "1.0.0"
-```
-
-This creates:
-- `trustcv_model_manifest.json` — upload this with the model
-- `trustcv_private_key.pem` — KEEP PRIVATE
-
-An uploaded model without a trusted manifest remains in **EXECUTION LOCKED** state.
-That is intentional: TrustCV must not blindly execute an untrusted `.pt` checkpoint.
+```text
+                 ┌───────────────────────┐
+                 │    MODEL ARTIFACT     │
+                 └───────────┬───────────┘
+                             │
+                             ▼
+                 ┌───────────────────────┐
+                 │  MODEL VERIFICATION  │
+                 │                       │
+                 │  SHA-256             │
+                 │  Digital Signature   │
+                 │  Vendor              │
+                 │  Version             │
+                 │  Provenance          │
+                 │  Safe Inspection     │
+                 └───────────┬───────────┘
+                             │
+                             ▼
+                 ┌───────────────────────┐
+                 │   DATASET SECURITY   │
+                 │                       │
+                 │   Integrity          │
+                 │   Duplicate Check    │
+                 │   Visual Screening   │
+                 │   Outlier Detection  │
+                 └───────────┬───────────┘
+                             │
+                             ▼
+                 ┌───────────────────────┐
+                 │      INPUT & OOD     │
+                 │                       │
+                 │   Input Integrity    │
+                 │   OOD Detection      │
+                 │   Distribution Shift │
+                 └───────────┬───────────┘
+                             │
+                             ▼
+                 ┌───────────────────────┐
+                 │     RELIABILITY      │
+                 │                       │
+                 │   Consistency Tests  │
+                 │   Perturbation Tests │
+                 └───────────┬───────────┘
+                             │
+                             ▼
+                 ┌───────────────────────┐
+                 │     AUDIT LEDGER     │
+                 │                       │
+                 │ Verification Trace   │
+                 │ Security Evidence    │
+                 └───────────┬───────────┘
+                             │
+                             ▼
+                 ┌───────────────────────┐
+                 │   TRUST / RISK       │
+                 │      DECISION        │
+                 └───────────────────────┘
