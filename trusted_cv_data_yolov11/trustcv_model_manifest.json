@@ -1,0 +1,11 @@
+{
+  "artifact": "model",
+  "filename": "yolo11n.pt",
+  "expected_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+  "vendor": "Approved Demo Vendor",
+  "version": "1.0.0",
+  "provenance": "Locally approved demo artifact",
+  "signature_algorithm": "RSA-PSS-SHA256",
+  "signature": "KPPuejEBQVwO5OtLFWyTULAcx4w3MEaSwtXuAhM0P/66EJV5srgpNjZmdugd/kyfyZhUfrJmWqCOY2DsXwvHRxxTU2xnOvDIjOLZV5VDpkxg4Y+6CJkv4ehHDQiJie7lxxvyCBKM1d/CfxVLd4lS7N+noMIf3MO/5GjmdW/XozuCp6Jf06k9LGkexX4NP9Du2nerImTZ8/zjCPwdoP4PZ/NWKUhg6lunfDQPNRukbgrtVOp6Lte3dhHJS4+oifH31wKYBK6sv3mPIwz4TzhGEIaFmHQtCU/zqRSAm45tT75boDl3SLuXAWCLWxIU6iOCfs6l+6VMHjhAPJ3OlSyJwF00xAr/cvfWwZ6kLKX4Uyr+diu+1jqlAYxELD/2PHN1IgL/opwbEycgh7b6+vMse+d+hlj3CM43NEfT16eHKZ+WmxAi0z+93AMLobK2M59vdDK1tFeDF5r3P0VDz+gpuKvL6hYj2a9Z2Hv+1BKgp1BL2MbDn1pJAWq5iSszjXBe",
+  "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAqjh+xBJl9XlyZjhDiEYN\nh+BIf9fd1DszwhtRd8uSP9KL+gYkeS5FXjVKMaxSyUCxMHEcl3yP0MmSEkC5f2jh\ndq6XL7VIlvEqa6vddmxntm8sXl50Sm/jBnuRqaj4telq3jHlEOC+bdhEs44mK+wE\nzSFsB/en/EhFRaLwrHvTorBPAa0DV1hIyULeFGA65ALrrsY4tW8Nfwbw8GzPDB+L\nLPiEFi9tO8hRrzhek5FjZfxEWtxHYyEhc65/cDj8UxeAclHetodTTV20w66FWdhy\nPqWw3yL/OzYSLagnogC0XOXKo9rtmBVpfM+kwpb9CYjVOSHH1zmS31l1gEzJSQ9F\ncD570Z+xMZ13axkkAWzZsPn6Fe1gByzck2YPBNSnWeCaW2BBBKkPSL8X0pCdTs5M\nSr/oRf4p3Wc0UxNG/WgTqqaing5Y3Xe/P5XUGfhtVDmjq0E4wHXBEWg6MG9xqHsl\nvSKJ1YXtbzrU8T45H3AxXq9h5m6e4Jfm4yt6rOAz//BlAgMBAAE=\n-----END PUBLIC KEY-----\n"
+}
