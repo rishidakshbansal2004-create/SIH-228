@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: mirad
+Version: 0.1.0
+Summary: Trustworthy CV integrity assurance — Security / Trust subsystem (PS 26228)
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: cryptography>=42.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"

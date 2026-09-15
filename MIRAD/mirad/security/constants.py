@@ -1,0 +1,12 @@
+"""Versioned constants for the Security / Trust subsystem."""
+
+DIGEST_PREFIX = "sha256:"
+HASH_ALGORITHM = "SHA-256"
+CANONICALIZATION_VERSION = "1.0"
+MANIFEST_SCHEMA_VERSION = "1.0"
+
+SUPPORTED_CANONICALIZATION_VERSIONS = frozenset({CANONICALIZATION_VERSION})
+SUPPORTED_MANIFEST_SCHEMA_VERSIONS = frozenset({MANIFEST_SCHEMA_VERSION})
+
+# Streaming hash chunk size for large artifacts (64 KiB)
+HASH_CHUNK_SIZE = 65536

@@ -1,0 +1,12 @@
+{
+  "canonicalization_version": "1.0",
+  "checkpoint_id": "checkpoint-demo-001",
+  "latest_audit_hash": "sha256:e63be7e98483d274b72cbdb8e277e5363e40b8dc30194f6c0421a045c08b8c21",
+  "latest_sequence": 7,
+  "public_key": "5BdZPsHH7GY7GnycKqSDvKxldf7rTlNdOWGmf7CmGbY=",
+  "schema_version": "1.0",
+  "signature": "MPjNNkBdNDEqsn1dR1bhFsctphhNZchBI+sU4BZ5N8QL+4piUTGl0PUzI9mpApGqwKYF8k8xJDmZNpE/MfnqCA==",
+  "signing_key_id": "demo-key",
+  "timestamp": "2026-09-14T18:32:11Z",
+  "trust_anchor_id": "default"
+}

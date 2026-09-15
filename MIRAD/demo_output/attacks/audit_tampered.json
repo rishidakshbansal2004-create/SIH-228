@@ -1,0 +1,133 @@
+[
+  {
+    "actor": "mirad-demo",
+    "audit_id": "audit-000001",
+    "current_hash": "sha256:00df732031094cc22f9355558939aee44c79696573bf85bbcb9a294fbdbe2d25",
+    "event_type": "MODEL_VERIFICATION",
+    "payload": {
+      "checks": {
+        "artifact_digest": true,
+        "artifact_identity": true,
+        "manifest_integrity": null,
+        "registration_status": true,
+        "trust_anchor": true
+      },
+      "evidence": {
+        "candidate": {
+          "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+          "artifact_id": "demo-model",
+          "artifact_type": "MODEL",
+          "format": "onnx",
+          "version": "v1"
+        },
+        "computed_artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+        "reference": {
+          "identity": {
+            "artifact_digest": "sha256:e3c50bef2456c893331a879dbe9879efc2fe262615cafb1a6ecfbfc6913e4654",
+            "artifact_id": "demo-model",
+            "artifact_type": "MODEL",
+            "format": "onnx",
+            "version": "v1"
+          },
+          "parent_version": null,
+          "registration_timestamp": "2026-09-14T18:32:11Z",
+          "status": "APPROVED",
+          "supersedes": null,
+          "trust_metadata": {}
+        }
+      },
+      "failure_codes": [],
+      "limitations": [
+        "Digest mismatch establishes artifact difference but does not alone establish malicious intent.",
+        "Registration as APPROVED means reference-known identity, not guaranteed model/dataset safety."
+      ],
+      "reason": "Candidate artifact matches the trusted registered reference.",
+      "status": "VERIFIED",
+      "unavailable_checks": [],
+      "valid": true
+    },
+    "previous_hash": null,
+    "sequence": 1,
+    "timestamp": "2026-09-14T18:32:11Z"
+  },
+  {
+    "actor": "mirad-demo",
+    "audit_id": "audit-000002",
+    "current_hash": "sha256:93d6a928b624a17fc968532d7c3127dea4c88711c405143d5f02e6df8cef554b",
+    "event_type": "INPUT_VERIFICATION",
+    "payload": {
+      "digest": "sha256:222af5335bcc7ac6e20c308b2dce093153ccafdb9a6ea9a17ecfe05405d2c74e"
+    },
+    "previous_hash": "sha256:00df732031094cc22f9355558939aee44c79696573bf85bbcb9a294fbdbe2d25",
+    "sequence": 2,
+    "timestamp": "2026-09-14T18:32:11Z"
+  },
+  {
+    "actor": "mirad-demo",
+    "audit_id": "audit-000003",
+    "current_hash": "sha256:eb125acf66a965719d651780920675c58ddc3393fee7206a4bdd7c233586deba",
+    "event_type": "PROVENANCE_CREATED",
+    "payload": {
+      "event_id": "evt-demo-001"
+    },
+    "previous_hash": "sha256:93d6a928b624a17fc968532d7c3127dea4c88711c405143d5f02e6df8cef554b",
+    "sequence": 3,
+    "timestamp": "2026-09-14T18:32:11Z"
+  },
+  {
+    "actor": "mirad-demo",
+    "audit_id": "audit-000004",
+    "current_hash": "sha256:124c07af3bae8d9769ffa33ac5d90e98aad20fda93120f6e210f9fb5b49f245e",
+    "event_type": "PROVENANCE_VERIFIED",
+    "payload": {
+      "failure_code": null,
+      "key_known": true,
+      "key_trusted": true,
+      "policy_valid": true,
+      "provenance_trusted": true,
+      "schema_valid": true,
+      "signature_valid": true,
+      "trust_anchor_valid": true
+    },
+    "previous_hash": "sha256:eb125acf66a965719d651780920675c58ddc3393fee7206a4bdd7c233586deba",
+    "sequence": 4,
+    "timestamp": "2026-09-14T18:32:11Z"
+  },
+  {
+    "actor": "mirad-demo",
+    "audit_id": "audit-000005",
+    "current_hash": "sha256:2527bf2ee7382c1e7bcb261b9b56d8f966f3169eae01d5117201f07a53112477",
+    "event_type": "REPLAY_CHECK",
+    "payload": {
+      "first": true,
+      "replay": "DUPLICATE_EVENT"
+    },
+    "previous_hash": "sha256:124c07af3bae8d9769ffa33ac5d90e98aad20fda93120f6e210f9fb5b49f245e",
+    "sequence": 5,
+    "timestamp": "2026-09-14T18:32:11Z"
+  },
+  {
+    "actor": "mirad-demo",
+    "audit_id": "audit-000006",
+    "current_hash": "sha256:829995153a5438907363d2ae70c6e0a3f84fcda989bef56690030c7e6a63b59f",
+    "event_type": "SECURITY_FINDING",
+    "payload": {
+      "attack": "OUTPUT_TAMPERING"
+    },
+    "previous_hash": "sha256:2527bf2ee7382c1e7bcb261b9b56d8f966f3169eae01d5117201f07a53112477",
+    "sequence": 6,
+    "timestamp": "2026-09-14T18:32:11Z"
+  },
+  {
+    "actor": "mirad-demo",
+    "audit_id": "audit-000007",
+    "current_hash": "sha256:e63be7e98483d274b72cbdb8e277e5363e40b8dc30194f6c0421a045c08b8c21",
+    "event_type": "CHECKPOINT_CREATED",
+    "payload": {
+      "planned_latest_sequence": 7
+    },
+    "previous_hash": "sha256:829995153a5438907363d2ae70c6e0a3f84fcda989bef56690030c7e6a63b59f",
+    "sequence": 7,
+    "timestamp": "2026-09-14T18:32:11Z"
+  }
+]
