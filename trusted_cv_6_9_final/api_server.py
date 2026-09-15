@@ -49,6 +49,17 @@ from ood_gate import OODGate
 from inference import TrustedDetector
 from phase8_integrity import InferenceIntegrity
 
+# Optional deep model-integrity scan (STRIP + Neural Cleanse + ablation).
+# Only works on the SmallCNN/CIFAR-10 testbed architecture from
+# poison_and_train.py -- NOT compatible with the YOLO best.pt used for the
+# main demo. Import is wrapped so the server still runs without torch/this
+# module present; the endpoint just reports itself unavailable instead.
+try:
+    from phase4_model_integrity import run_phase4
+    _PHASE4_AVAILABLE = True
+except Exception:
+    _PHASE4_AVAILABLE = False
+
 APP_DIR = Path(__file__).parent
 REGISTRY_PATH = APP_DIR / "trusted_registry.json"
 DEFAULT_WEIGHTS = APP_DIR / "best.pt"
@@ -208,6 +219,37 @@ async def analyze(file: UploadFile = File(...), conf: float = Form(0.25), iou: f
 def verify_ledger():
     ok, msg = ledger.verify()
     return {"valid": ok, "message": msg}
+
+
+@app.post("/api/model-integrity/deep-scan")
+async def deep_scan(file: UploadFile = File(...), access_level: str = Form("white_box")):
+    """Optional deeper Tampering Detection check: runs STRIP + Neural
+    Cleanse + (conditionally) Stage-2 ablation validation on the uploaded
+    weights, via phase4_model_integrity.run_phase4().
+
+    IMPORTANT: this only works on the SmallCNN/CIFAR-10 testbed
+    architecture (see poison_and_train.py) -- it is a research-grade
+    backdoor scan, not a general-purpose check for arbitrary model
+    formats. Uploading the demo YOLO weights (best.pt) here will fail;
+    that's expected, not a bug. This is intentionally kept separate from
+    /api/verify/model so the main verification flow never depends on it.
+    """
+    if not _PHASE4_AVAILABLE:
+        return {"error": "phase4_model_integrity module or its dependencies (torch, etc.) are not available on this server."}
+
+    data = await file.read()
+    tmp_path = APP_DIR / f"_deep_scan_upload_{sha256_bytes(data)[:12]}.pt"
+    tmp_path.write_bytes(data)
+    try:
+        report = run_phase4(str(tmp_path), access_level)
+    except Exception as e:
+        return {"error": f"Deep scan failed -- likely an incompatible model format. This scan only supports the SmallCNN testbed architecture. Details: {e}"}
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    _log_event({"schema_version": "1.0", "timestamp_utc": utc_now(), "type": "model_integrity_deep_scan",
+                "filename": file.filename, "sha256": sha256_bytes(data), "disposition": report["disposition"]})
+    return report
 
 
 @app.get("/api/health")
