@@ -1,31 +1,10 @@
 """
 Phase 4 — Model Integrity, White-Box Stage 1: Neural Cleanse
 
-Paper: "Neural Cleanse: Identifying and Mitigating Backdoor Attacks in
-Neural Networks" — Wang, Yao, Shan, Li, Viswanath, Zheng, Zhao,
-IEEE S&P 2019. https://people.cs.uchicago.edu/~ravenben/publications/pdf/backdoor-sp19.pdf
+Neural Cleanse reverse-engineers a candidate trigger for every target class
+using clean reference images supplied by the user.
 
-What this does, per class c:
-    1. Learn a mask (where to overwrite) and a pattern (what to overwrite
-       with) that reliably forces the model to predict class c on a batch
-       of CLEAN, mixed-class images — while minimizing how much of the
-       image needs to be overwritten (L1 penalty on the mask).
-    2. Record the final mask size (L1 norm) for class c.
-After running this for every class:
-    3. Compare mask sizes across all classes using Median Absolute
-       Deviation (MAD). A class whose mask is an anomalously small outlier
-       is flagged as the suspected backdoor target.
-    4. Verify the flagged class's recovered mask+pattern by applying it to
-       FRESH clean images (not used during optimization) and checking it
-       reliably forces the target class — this is what separates "here's a
-       candidate" from "here's a validated candidate."
-
-This does NOT prove the recovered pattern is the attacker's exact trigger
-— see limitations in the returned report.
-
-Designed to plug into poison_and_train.py's SmallCNN + CIFAR-10 testbed,
-but works on any classifier: swap NUM_CLASSES / IMG_SHAPE / the model
-loader as needed.
+The reference images are NOT downloaded automatically.
 """
 
 import copy
@@ -36,87 +15,150 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader, Subset
-import torchvision
-import torchvision.transforms as T
 from torchvision.utils import save_image
 
-# Reuse the exact architecture used to train the testbed models.
 from poison_and_train import SmallCNN, add_trigger
 
-DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
-IMG_SHAPE = (3, 32, 32)          # CIFAR-10
+
+DEVICE = "cuda" if torch.cuda.is_available() else (
+    "mps" if torch.backends.mps.is_available() else "cpu"
+)
+
+IMG_SHAPE = (3, 32, 32)
 NUM_CLASSES = 10
+
 NORM_MEAN = (0.4914, 0.4822, 0.4465)
 NORM_STD = (0.2470, 0.2435, 0.2616)
 
-# Optimization hyperparameters (paper-standard ballpark, tuned down for speed)
 STEPS = 800
 LR = 0.05
-LAMBDA_INIT = 1e-4        # weight on the mask-size penalty; paper anneals this
+LAMBDA_INIT = 1e-4
 LAMBDA_MAX = 5.0
-ASR_TARGET = 0.90         # if a candidate reaches this attack success rate on
-                           # the optimization batch, we consider it "converged"
-MAD_ANOMALY_THRESHOLD = 2.0   # paper's standard cutoff
-MASK_INIT_BIAS = -4.0     # sigmoid(-4) ≈ 0.018 → mask starts NEAR-EMPTY, not
-                           # at 50% coverage. The optimizer must earn every
-                           # bit of mask it uses; a real small trigger should
-                           # converge to a small mask, not shrink from a big one.
+ASR_TARGET = 0.90
+MAD_ANOMALY_THRESHOLD = 2.0
+MASK_INIT_BIAS = -4.0
 
 
-def _load_calibration_batch(n_images=512, batch_seed=0):
-    """Our own clean reference images — NOT the vendor's/attacker's training
-    data. Mixed across all classes, matching the threat model: we never
-    assume access to the model owner's original training set."""
-    g = torch.Generator().manual_seed(batch_seed)
-    transform = T.Compose([T.ToTensor()])
-    ds = torchvision.datasets.CIFAR10(root="./data", train=False, download=True, transform=transform)
-    idx = torch.randperm(len(ds), generator=g)[:n_images]
-    imgs = torch.stack([ds[i][0] for i in idx])
-    return imgs  # raw [0,1] tensors, NOT normalized yet
+def _validate_reference_images(reference_images):
+    if reference_images is None:
+        raise ValueError(
+            "Clean reference images are required for Neural Cleanse."
+        )
+
+    if not isinstance(reference_images, torch.Tensor):
+        raise TypeError(
+            "reference_images must be a torch.Tensor."
+        )
+
+    if reference_images.ndim != 4:
+        raise ValueError(
+            "reference_images must have shape [N,C,H,W], "
+            f"got {tuple(reference_images.shape)}"
+        )
+
+    if reference_images.shape[1] != 3:
+        raise ValueError(
+            "Neural Cleanse currently expects RGB images with 3 channels."
+        )
+
+    if reference_images.shape[2] != 32 or reference_images.shape[3] != 32:
+        raise ValueError(
+            "The current SmallCNN testbed expects 32x32 reference images. "
+            f"Received {reference_images.shape[2]}x{reference_images.shape[3]}."
+        )
+
+    reference_images = reference_images.float()
+
+    if reference_images.max().item() > 1.0:
+        reference_images = reference_images / 255.0
+
+    reference_images = torch.clamp(reference_images, 0.0, 1.0)
+
+    return reference_images
 
 
-def _normalize(x):
-    mean = torch.tensor(NORM_MEAN, device=x.device).view(1, 3, 1, 1)
-    std = torch.tensor(NORM_STD, device=x.device).view(1, 3, 1, 1)
+def _normalize(x, mean=NORM_MEAN, std=NORM_STD):
+    mean = torch.tensor(
+        mean,
+        device=x.device
+    ).view(1, 3, 1, 1)
+
+    std = torch.tensor(
+        std,
+        device=x.device
+    ).view(1, 3, 1, 1)
+
     return (x - mean) / std
 
 
-def reverse_engineer_trigger(model, target_class, calib_imgs, steps=STEPS, lr=LR, device=DEVICE):
-    """Optimize a (mask, pattern) pair that forces `target_class` on
-    `calib_imgs`, while minimizing mask size. Returns the final mask,
-    pattern, mask L1 size, and the attack success rate achieved on this
-    same optimization batch (a training-set ASR, not held-out — see
-    verify_trigger() for the held-out check).
+def reverse_engineer_trigger(
+    model,
+    target_class,
+    calib_imgs,
+    steps=STEPS,
+    lr=LR,
+    device=DEVICE
+):
     """
+    Optimize a mask and pattern that forces target_class on clean images
+    while minimizing the mask size.
+    """
+
     model.eval()
+
     calib_imgs = calib_imgs.to(device)
+
     n, c, h, w = calib_imgs.shape
 
-    # Mask and pattern are optimized in an unconstrained space and squashed
-    # into [0,1] via sigmoid/tanh, matching Neural Cleanse's parameterization
-    # (keeps gradient descent well-behaved instead of manually clipping).
-    # Mask starts NEAR-EMPTY (see MASK_INIT_BIAS) so the optimizer must
-    # genuinely grow it to whatever size is required — a real small trigger
-    # should converge small; a class with no shortcut will be forced to grow
-    # the mask large to satisfy the classification objective.
-    mask_param = torch.full((1, 1, h, w), MASK_INIT_BIAS, device=device, requires_grad=True)
-    pattern_param = torch.zeros(1, c, h, w, device=device, requires_grad=True)
-    mask_param.requires_grad_(True)
-    pattern_param.requires_grad_(True)
+    mask_param = torch.full(
+        (1, 1, h, w),
+        MASK_INIT_BIAS,
+        device=device,
+        requires_grad=True
+    )
 
-    opt = torch.optim.Adam([mask_param, pattern_param], lr=lr)
+    pattern_param = torch.zeros(
+        1,
+        c,
+        h,
+        w,
+        device=device,
+        requires_grad=True
+    )
+
+    opt = torch.optim.Adam(
+        [mask_param, pattern_param],
+        lr=lr
+    )
+
     lam = LAMBDA_INIT
-    target = torch.full((n,), target_class, dtype=torch.long, device=device)
+
+    target = torch.full(
+        (n,),
+        target_class,
+        dtype=torch.long,
+        device=device
+    )
 
     for step in range(steps):
-        mask = torch.sigmoid(mask_param)         # [1,1,H,W] in (0,1)
-        pattern = torch.sigmoid(pattern_param)    # [1,C,H,W] in (0,1)
 
-        blended = (1 - mask) * calib_imgs + mask * pattern
+        mask = torch.sigmoid(mask_param)
+        pattern = torch.sigmoid(pattern_param)
+
+        blended = (
+            (1 - mask) * calib_imgs
+            + mask * pattern
+        )
+
         logits = model(_normalize(blended))
-        cls_loss = F.cross_entropy(logits, target)
-        mask_size = mask.mean()  # normalized (0..1 fraction of image), easier to compare across classes than raw L1
+
+        cls_loss = F.cross_entropy(
+            logits,
+            target
+        )
+
+        mask_size = mask.mean()
+
         loss = cls_loss + lam * mask_size
 
         opt.zero_grad()
@@ -124,174 +166,601 @@ def reverse_engineer_trigger(model, target_class, calib_imgs, steps=STEPS, lr=LR
         opt.step()
 
         if step % 25 == 0 or step == steps - 1:
+
             with torch.no_grad():
-                asr = (logits.argmax(1) == target).float().mean().item()
-            # Anneal lambda: if we're comfortably fooling the model, push
-            # harder on shrinking the mask; if we're struggling, back off
-            # so the optimizer can first find ANY working solution.
+                asr = (
+                    logits.argmax(1) == target
+                ).float().mean().item()
+
             if asr > ASR_TARGET:
-                lam = min(lam * 1.5, LAMBDA_MAX)
+                lam = min(
+                    lam * 1.5,
+                    LAMBDA_MAX
+                )
             else:
-                lam = max(lam * 0.8, LAMBDA_INIT)
+                lam = max(
+                    lam * 0.8,
+                    LAMBDA_INIT
+                )
 
     with torch.no_grad():
+
         mask = torch.sigmoid(mask_param)
         pattern = torch.sigmoid(pattern_param)
-        blended = (1 - mask) * calib_imgs + mask * pattern
+
+        blended = (
+            (1 - mask) * calib_imgs
+            + mask * pattern
+        )
+
         logits = model(_normalize(blended))
-        final_asr = (logits.argmax(1) == target).float().mean().item()
+
+        final_asr = (
+            logits.argmax(1) == target
+        ).float().mean().item()
+
         mask_size = mask.mean().item()
 
     return {
         "target_class": target_class,
         "mask": mask.detach().cpu(),
         "pattern": pattern.detach().cpu(),
-        "mask_size": mask_size,          # fraction of image overwritten, 0..1
-        "optimization_asr": final_asr,   # ASR on the SAME batch used to optimize (optimistic)
+        "mask_size": mask_size,
+        "optimization_asr": final_asr
     }
 
 
 def mad_anomaly_scores(mask_sizes):
-    """Standard MAD-based outlier score, per Neural Cleanse Section IV."""
-    sizes = np.array(mask_sizes, dtype=float)
+    sizes = np.array(
+        mask_sizes,
+        dtype=float
+    )
+
     median = np.median(sizes)
-    mad = np.median(np.abs(sizes - median)) + 1e-12
-    # Neural Cleanse flags classes whose mask is anomalously SMALL, so we
-    # only care about negative deviations (below the median).
-    anomaly = np.where(sizes < median, (median - sizes) / mad, 0.0)
+
+    mad = np.median(
+        np.abs(sizes - median)
+    ) + 1e-12
+
+    anomaly = np.where(
+        sizes < median,
+        (median - sizes) / mad,
+        0.0
+    )
+
     return anomaly, median, mad
 
 
 @torch.no_grad()
-def verify_trigger(model, mask, pattern, target_class, held_out_imgs, device=DEVICE):
-    """Apply the recovered mask+pattern to FRESH images not used during
-    optimization, and check how often it forces target_class. This is the
-    "verification" step (Section 6 of the design doc) — separates a
-    candidate trigger from a validated one."""
+def verify_trigger(
+    model,
+    mask,
+    pattern,
+    target_class,
+    held_out_imgs,
+    device=DEVICE
+):
+    """
+    Verify the recovered trigger on clean images that were not used
+    during optimization.
+    """
+
     model.eval()
+
     held_out_imgs = held_out_imgs.to(device)
     mask = mask.to(device)
     pattern = pattern.to(device)
-    blended = (1 - mask) * held_out_imgs + mask * pattern
-    logits = model(_normalize(blended))
+
+    blended = (
+        (1 - mask) * held_out_imgs
+        + mask * pattern
+    )
+
+    logits = model(
+        _normalize(blended)
+    )
+
     preds = logits.argmax(1)
-    asr = (preds == target_class).float().mean().item()
+
+    asr = (
+        preds == target_class
+    ).float().mean().item()
+
     return asr
 
 
-def run_neural_cleanse(model, num_classes=NUM_CLASSES, n_calib=512, n_holdout=512, device=DEVICE):
-    """Full Stage 1 pipeline: reverse-engineer a candidate trigger for every
-    class, score anomalies, verify the most suspicious class on held-out
-    data. Returns a governance-ready report."""
-    calib_imgs = _load_calibration_batch(n_images=n_calib, batch_seed=0)
-    holdout_imgs = _load_calibration_batch(n_images=n_holdout, batch_seed=1)
+def _trigger_geometry(mask):
+    mask_2d = mask.detach().cpu().squeeze()
+    threshold = float(mask_2d.mean().item())
+    active = mask_2d > threshold
+    coords = torch.nonzero(active, as_tuple=False)
+
+    if coords.numel() == 0:
+        return {
+            "threshold": threshold,
+            "bbox_xyxy": None,
+            "active_pixels": 0,
+            "image_area": int(mask_2d.numel()),
+        }
+
+    y0 = int(coords[:, 0].min().item())
+    x0 = int(coords[:, 1].min().item())
+    y1 = int(coords[:, 0].max().item())
+    x1 = int(coords[:, 1].max().item())
+
+    return {
+        "threshold": threshold,
+        "bbox_xyxy": [x0, y0, x1, y1],
+        "active_pixels": int(active.sum().item()),
+        "image_area": int(mask_2d.numel()),
+    }
+
+
+def run_neural_cleanse(
+    model,
+    reference_images,
+    num_classes=NUM_CLASSES,
+    n_calib=512,
+    n_holdout=512,
+    device=DEVICE
+):
+    """
+    Full Neural Cleanse pipeline.
+
+    reference_images:
+        Clean images supplied by the user.
+        Expected shape: [N, 3, 32, 32]
+        Expected range: [0, 1]
+
+    Calibration and holdout images are independently sampled from the
+    full supplied reference dataset using seeds 0 and 1.
+    """
+
+    reference_images = _validate_reference_images(
+        reference_images
+    )
+
+    required = n_calib + n_holdout
+
+    if len(reference_images) < required:
+        raise ValueError(
+            f"Neural Cleanse requires at least {required} clean "
+            f"reference images, but received {len(reference_images)}."
+        )
+
+    # Reproduce the original Neural Cleanse testbed sampling:
+    # calibration and holdout are independently sampled from the full
+    # user-supplied CIFAR-10 test reference using seeds 0 and 1.
+    generator_calib = torch.Generator().manual_seed(0)
+    generator_holdout = torch.Generator().manual_seed(1)
+
+    calib_idx = torch.randperm(
+        len(reference_images),
+        generator=generator_calib
+    )[:n_calib]
+
+    holdout_idx = torch.randperm(
+        len(reference_images),
+        generator=generator_holdout
+    )[:n_holdout]
+
+    calib_imgs = reference_images[calib_idx]
+    holdout_imgs = reference_images[holdout_idx]
+
+    print(
+        f"[Neural Cleanse] Using {n_calib} calibration images "
+        f"and {n_holdout} held-out images.",
+        flush=True
+    )
 
     per_class = []
+
     for c in range(num_classes):
-        print(f"[Neural Cleanse] optimizing candidate trigger for class {c}/{num_classes-1}...")
-        result = reverse_engineer_trigger(model, c, calib_imgs, device=device)
+
+        print(
+            f"[Neural Cleanse] optimizing candidate trigger "
+            f"for class {c}/{num_classes - 1}...",
+            flush=True
+        )
+
+        result = reverse_engineer_trigger(
+            model,
+            c,
+            calib_imgs,
+            device=device
+        )
+
         per_class.append(result)
 
-    mask_sizes = [r["mask_size"] for r in per_class]
-    anomaly_scores, median, mad = mad_anomaly_scores(mask_sizes)
+    mask_sizes = [
+        r["mask_size"]
+        for r in per_class
+    ]
+
+    anomaly_scores, median, mad = (
+        mad_anomaly_scores(mask_sizes)
+    )
 
     flags = []
-    for r, score in zip(per_class, anomaly_scores):
+
+    for r, score in zip(
+        per_class,
+        anomaly_scores
+    ):
+
         flags.append({
             "target_class": r["target_class"],
             "mask_size": r["mask_size"],
             "optimization_asr": r["optimization_asr"],
-            "anomaly_index": float(score),
+            "anomaly_index": float(score)
         })
 
-    suspect_idx = int(np.argmax(anomaly_scores))
-    suspect = per_class[suspect_idx]
-    suspect_flagged = anomaly_scores[suspect_idx] > MAD_ANOMALY_THRESHOLD
+    suspect_idx = int(
+        np.argmax(anomaly_scores)
+    )
+
+    suspect = per_class[
+        suspect_idx
+    ]
+
+    suspect_flagged = (
+        anomaly_scores[suspect_idx]
+        > MAD_ANOMALY_THRESHOLD
+    )
 
     verification_asr = None
+
     if suspect_flagged:
+
         verification_asr = verify_trigger(
-            model, suspect["mask"], suspect["pattern"], suspect["target_class"], holdout_imgs, device=device
+            model,
+            suspect["mask"],
+            suspect["pattern"],
+            suspect["target_class"],
+            holdout_imgs,
+            device=device
         )
 
-    verdict_flagged = bool(suspect_flagged and verification_asr is not None and verification_asr > 0.80)
+    verdict_flagged = bool(
+        suspect_flagged
+        and verification_asr is not None
+        and verification_asr > 0.80
+    )
+
+    if verdict_flagged:
+
+        disposition = "quarantine"
+
+        reason = (
+            f"Class {suspect['target_class']} required an "
+            f"anomalously small mask "
+            f"(anomaly_index="
+            f"{anomaly_scores[suspect_idx]:.2f}, "
+            f"threshold={MAD_ANOMALY_THRESHOLD}) "
+            f"to force misclassification, and the recovered "
+            f"trigger achieved "
+            f"{verification_asr:.1%} attack success rate "
+            f"on held-out clean images."
+        )
+
+    elif suspect_flagged:
+
+        disposition = "review"
+
+        reason = (
+            f"Class {suspect['target_class']} showed a mild "
+            f"mask-size anomaly "
+            f"(anomaly_index="
+            f"{anomaly_scores[suspect_idx]:.2f}) "
+            f"but did not clear held-out verification."
+        )
+
+    else:
+
+        disposition = "accept"
+
+        reason = (
+            "No class showed an anomalously small trigger "
+            "mask relative to the others."
+        )
+
+    confidence = (
+        float(
+            min(
+                anomaly_scores[suspect_idx]
+                / (2 * MAD_ANOMALY_THRESHOLD),
+                1.0
+            )
+        )
+        if suspect_flagged
+        else
+        1.0 - float(
+            min(
+                max(anomaly_scores),
+                1.0
+            )
+            / MAD_ANOMALY_THRESHOLD
+        )
+    )
 
     report = {
-        "method": "Neural Cleanse (white-box, requires gradient access)",
-        "access_level": "white_box",
-        "disposition": "quarantine" if verdict_flagged else ("review" if suspect_flagged else "accept"),
-        "reason": (
-            f"Class {suspect['target_class']} required an anomalously small mask "
-            f"(anomaly_index={anomaly_scores[suspect_idx]:.2f}, threshold={MAD_ANOMALY_THRESHOLD}) "
-            f"to force misclassification, and the recovered trigger achieved "
-            f"{verification_asr:.1%} attack success rate on held-out clean images "
-            f"never used during optimization."
-            if verdict_flagged else
-            (f"Class {suspect['target_class']} showed a mild mask-size anomaly "
-             f"(anomaly_index={anomaly_scores[suspect_idx]:.2f}) but did not clear "
-             f"held-out verification — treat as inconclusive, not confirmed."
-             if suspect_flagged else
-             "No class showed an anomalously small trigger mask relative to the others.")
+
+        "method": (
+            "Neural Cleanse "
+            "(white-box, requires gradient access)"
         ),
+
+        "access_level": "white_box",
+
+        "disposition": disposition,
+
+        "reason": reason,
+
         "evidence": {
+
+            "reference_data": {
+                "source": "user_supplied",
+                "total_images": len(reference_images),
+                "calibration_images": n_calib,
+                "holdout_images": n_holdout,
+                "split_method": "independent_random",
+                "calibration_seed": 0,
+                "holdout_seed": 1
+            },
+
             "per_class_flags": flags,
+
             "median_mask_size": float(median),
+
             "mad": float(mad),
-            "suspect_class": suspect["target_class"] if suspect_flagged else None,
-            "verification_asr_on_holdout": verification_asr,
+
+            "suspect_class": (
+                suspect["target_class"]
+                if suspect_flagged
+                else None
+            ),
+
+            "verification_asr_on_holdout":
+                verification_asr,
+
+            "recovered_trigger": (
+                {
+                    "target_class": suspect["target_class"],
+                    "mask_size": suspect["mask_size"],
+                    "optimization_asr": suspect["optimization_asr"],
+                    **_trigger_geometry(suspect["mask"])
+                }
+                if suspect_flagged
+                else None
+            )
         },
-        "confidence": float(min(anomaly_scores[suspect_idx] / (2 * MAD_ANOMALY_THRESHOLD), 1.0)) if suspect_flagged else 1.0 - float(min(max(anomaly_scores), 1.0) / MAD_ANOMALY_THRESHOLD),
+
+        "confidence": confidence,
+
         "limitations": [
-            "Does not prove the recovered pattern is the attacker's exact trigger — it is a candidate reverse-engineered pattern that behaves like one.",
-            "Requires white-box (gradient) access — has no fallback if only an API/black-box is available (use STRIP instead in that case).",
-            "Assumes a patch-style trigger reasonably localized in input space; may miss distributed, semantic, or non-additive triggers.",
-            "Optimization ASR is measured on the same batch used for optimization and is optimistic; only the held-out verification ASR should be trusted as evidence.",
-        ],
+
+            "Does not prove the recovered pattern is the "
+            "attacker's exact trigger — it is a candidate "
+            "reverse-engineered pattern that behaves like one.",
+
+            "Requires white-box gradient access.",
+
+            "Assumes a patch-style trigger reasonably "
+            "localized in input space; may miss distributed, "
+            "semantic, or non-additive triggers.",
+
+            "Optimization ASR is measured on the same batch "
+            "used during optimization and is optimistic; "
+            "only held-out verification ASR should be treated "
+            "as validation evidence.",
+
+            "The supplied reference dataset must be representative "
+            "of the legitimate model input distribution.",
+
+            "Current SmallCNN integration expects RGB 32x32 "
+            "images with CIFAR-10 normalization."
+        ]
     }
+
     return report, per_class
 
 
 if __name__ == "__main__":
-    import argparse
-    p = argparse.ArgumentParser()
-    p.add_argument("--weights", required=True, help="Path to a SmallCNN state_dict, e.g. backdoor_testbed/backdoored_model.pt")
-    p.add_argument("--out", default="neural_cleanse_report.json")
-    args = p.parse_args()
 
-    model = SmallCNN(num_classes=NUM_CLASSES)
-    model.load_state_dict(torch.load(args.weights, map_location=DEVICE))
+    import argparse
+    from PIL import Image
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--weights",
+        required=True
+    )
+
+    parser.add_argument(
+        "--reference_dir",
+        required=True,
+        help="Directory containing clean reference images"
+    )
+
+    parser.add_argument(
+        "--out",
+        default="neural_cleanse_report.json"
+    )
+
+    args = parser.parse_args()
+
+    model = SmallCNN(
+        num_classes=NUM_CLASSES
+    )
+
+    model.load_state_dict(
+        torch.load(
+            args.weights,
+            map_location=DEVICE
+        )
+    )
+
     model.to(DEVICE)
 
-    report, per_class = run_neural_cleanse(model)
+    image_paths = sorted(
+        [
+            p for p in Path(
+                args.reference_dir
+            ).iterdir()
+            if p.suffix.lower()
+            in {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".bmp",
+                ".webp"
+            }
+        ]
+    )
 
-    print("\n=== Neural Cleanse report ===")
-    print(json.dumps(report, indent=2))
+    if not image_paths:
+        raise ValueError(
+            "No supported images found in reference_dir."
+        )
 
-    with open(args.out, "w") as f:
-        json.dump(report, f, indent=2)
-    print(f"\nSaved report to {args.out}")
+    images = []
 
-    # Save the recovered trigger itself as a viewable image, not just numbers.
-    # This is what you'd actually put in your report/demo as "here is the
-    # pattern the model was reacting to" — see report["evidence"]["suspect_class"].
-    suspect_class = report["evidence"]["suspect_class"]
+    for path in image_paths:
+
+        image = Image.open(path).convert("RGB")
+
+        image = image.resize(
+            (32, 32)
+        )
+
+        array = np.asarray(
+            image,
+            dtype=np.float32
+        ) / 255.0
+
+        tensor = torch.from_numpy(
+            array
+        ).permute(
+            2, 0, 1
+        )
+
+        images.append(tensor)
+
+    reference_images = torch.stack(
+        images
+    )
+
+    report, per_class = run_neural_cleanse(
+        model,
+        reference_images
+    )
+
+    print(
+        "\n=== Neural Cleanse report ==="
+    )
+
+    print(
+        json.dumps(
+            report,
+            indent=2,
+            default=str
+        )
+    )
+
+    with open(
+        args.out,
+        "w"
+    ) as f:
+
+        json.dump(
+            report,
+            f,
+            indent=2,
+            default=str
+        )
+
+    print(
+        f"\nSaved report to {args.out}"
+    )
+
+    suspect_class = report[
+        "evidence"
+    ][
+        "suspect_class"
+    ]
+
     if suspect_class is not None:
-        suspect = next(r for r in per_class if r["target_class"] == suspect_class)
-        mask, pattern = suspect["mask"], suspect["pattern"]
 
-        recovered_trigger = (mask * pattern)[0]           # what actually gets pasted, [C,H,W]
-        mask_visual = mask[0].repeat(3, 1, 1)              # mask alone, as a grayscale-looking image
+        suspect = next(
+            r for r in per_class
+            if r["target_class"]
+            == suspect_class
+        )
 
-        out_dir = os.path.dirname(args.out) or "."
-        save_image(recovered_trigger, os.path.join(out_dir, "recovered_trigger.png"))
-        save_image(mask_visual, os.path.join(out_dir, "recovered_trigger_mask.png"))
-        torch.save({"mask": mask, "pattern": pattern, "target_class": suspect_class},
-                   os.path.join(out_dir, "recovered_trigger.pt"))
-        print(f"Saved recovered trigger image to recovered_trigger.png "
-              f"(class {suspect_class}, mask covers {suspect['mask_size']:.1%} of the image)")
-        print("Saved raw mask/pattern tensors to recovered_trigger.pt for reuse in Stage 2 ablation.")
-        print("Compare this visually against backdoor_testbed/trigger_examples.png "
-              "(the REAL planted trigger) to sanity-check the reconstruction — "
-              "they are not guaranteed to look identical, only to behave similarly.")
+        mask = suspect["mask"]
+        pattern = suspect["pattern"]
+
+        recovered_trigger = (
+            mask * pattern
+        )[0]
+
+        mask_visual = (
+            mask[0]
+            .repeat(3, 1, 1)
+        )
+
+        out_dir = (
+            os.path.dirname(args.out)
+            or "."
+        )
+
+        save_image(
+            recovered_trigger,
+            os.path.join(
+                out_dir,
+                "recovered_trigger.png"
+            )
+        )
+
+        save_image(
+            mask_visual,
+            os.path.join(
+                out_dir,
+                "recovered_trigger_mask.png"
+            )
+        )
+
+        torch.save(
+            {
+                "mask": mask,
+                "pattern": pattern,
+                "target_class": suspect_class
+            },
+            os.path.join(
+                out_dir,
+                "recovered_trigger.pt"
+            )
+        )
+
+        print(
+            "Saved recovered trigger image to "
+            "recovered_trigger.png "
+            f"(class {suspect_class}, "
+            f"mask covers "
+            f"{suspect['mask_size']:.1%} "
+            "of the image)"
+        )
+
+        print(
+            "Saved raw mask/pattern tensors to "
+            "recovered_trigger.pt"
+        )
+
     else:
-        print("No class was flagged — no trigger image to save.")
+
+        print(
+            "No class was flagged — "
+            "no trigger image to save."
+        )

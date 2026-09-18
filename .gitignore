@@ -1,0 +1,76 @@
+# Python / Virtual Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+.env.*
+!.env.example
+
+# Node / React / Vite
+node_modules/
+dist/
+build/
+.vite/
+
+# Large ML Model Files
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.engine
+*.safetensors
+*.bin
+runtime_models/
+cifar10_convnext_tiny_badnet_0_001/
+
+# Datasets / Training Data
+data/
+datasets/
+backdoor_testbed/
+*.cache
+labels.cache
+
+# Local Audit / Runtime State
+audit/
+trusted_registry.json
+audit_ledger.jsonl
+mirad_audit_ledger.jsonl
+
+# Generated Reports
+trace_report*.json
+trace_calibration*.json
+ablation_report*.json
+phase4_report*.json
+phase4_generic_report*.json
+strip_report*.json
+
+# Local Images / Test Artifacts
+test.png
+image.png
+imagecopy.png
+recovered_trigger.png
+recovered_trigger_mask.png
+recovered_trigger.pt
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs / Temporary
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# MIRAD local Python environment
+MIRAD/Lib/
+MIRAD/bin/
+MIRAD/include/
+MIRAD/lib/
