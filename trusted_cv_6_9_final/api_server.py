@@ -12,6 +12,12 @@ import json
 from pathlib import Path
 from typing import Any
 import tempfile
+import sys
+
+sys.path.insert(
+    0,
+    str(Path(__file__).resolve().parent.parent / "MIRAD")
+)
 
 import cv2
 import numpy as np
