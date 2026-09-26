@@ -428,7 +428,7 @@ SIH-228/
 │   ├── poison_and_train.py
 │   └── strip_cifar.py
 │
-├── trusted_cv_6_9_final/
+├── trusted_cv_model_integrity_final/
 │   │
 │   ├── run_pipeline.py
 │   ├── inference.py
@@ -479,7 +479,7 @@ cd SIH-228
 Enter the final deployment pipeline:
 
 ```bash
-cd trusted_cv_6_9_final
+cd trusted_cv_model_integrity_final
 ```
 
 Create and activate a virtual environment:
