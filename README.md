@@ -1,3 +1,13 @@
+---
+title: TrustCV Verification API
+emoji: 🛡️
+colorFrom: indigo
+colorTo: blue
+sdk: gradio
+app_file: app.py
+pinned: false
+---
+
 # Trusted CV
 ### A Trust, Integrity & Security Layer for Computer Vision Models
 
