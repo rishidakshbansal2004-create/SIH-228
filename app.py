@@ -44,8 +44,8 @@ with gr.Blocks(title="TrustCV Verification & Security API") as demo:
     gr.Markdown("- **Swagger Documentation**: [`/docs`](/docs)")
     gr.Markdown("- **OpenAPI Specification**: [`/openapi.json`](/openapi.json)")
 
-# Mount Gradio at root while leaving all existing /api/* FastAPI routes intact
-app = gr.mount_gradio_app(fastapi_app, demo, path="/")
+# Mount Gradio at root with SSR disabled (prevents Node.js from binding port 7860)
+app = gr.mount_gradio_app(fastapi_app, demo, path="/", ssr_mode=False)
 
 if __name__ == "__main__":
     import os
