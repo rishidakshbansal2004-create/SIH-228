@@ -1,6 +1,12 @@
 """Stable machine-readable security error codes and status values."""
 
-from enum import StrEnum
+try:
+    from enum import StrEnum
+except ImportError:
+    from enum import Enum
+
+    class StrEnum(str, Enum):
+        pass
 
 
 class SecurityStatus(StrEnum):

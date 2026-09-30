@@ -5,7 +5,13 @@ from __future__ import annotations
 from base64 import b64decode, b64encode
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import StrEnum
+try:
+    from enum import StrEnum
+except ImportError:
+    from enum import Enum
+
+    class StrEnum(str, Enum):
+        pass
 from typing import Any
 
 from cryptography.exceptions import InvalidSignature
