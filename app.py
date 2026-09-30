@@ -3,20 +3,23 @@ TrustCV Verification & Security API - Hugging Face Spaces Entrypoint
 Mounts the TrustCV FastAPI backend onto Gradio for zero-billing 16 GB RAM hosting.
 """
 
-import sys
-from pathlib import Path
-import uvicorn
-import gradio as gr
-
 try:
     import spaces
+    print("SUCCESS: ZeroGPU spaces module loaded successfully!", flush=True)
 
     @spaces.GPU
     def gpu_accelerator_status():
         return "🛡️ TrustCV Accelerator Active (ZeroGPU A10G)"
-except Exception:
+except Exception as e:
+    print(f"NOTICE: ZeroGPU spaces not active ({e})", flush=True)
+
     def gpu_accelerator_status():
         return "🛡️ TrustCV Engine Active (Standard CPU 16 GB RAM)"
+
+import sys
+from pathlib import Path
+import uvicorn
+import gradio as gr
 
 # Ensure local directories resolve correctly
 repo_root = Path(__file__).resolve().parent
@@ -43,6 +46,9 @@ with gr.Blocks(title="TrustCV Verification & Security API") as demo:
     gr.Markdown("- **Phase 4 B3D Analysis**: `/api/verify/model/phase4`")
     gr.Markdown("- **Swagger Documentation**: [`/docs`](/docs)")
     gr.Markdown("- **OpenAPI Specification**: [`/openapi.json`](/openapi.json)")
+
+# Enable Gradio queue for ZeroGPU integration
+demo.queue()
 
 # Mount Gradio at root with SSR disabled (prevents Node.js from binding port 7860)
 app = gr.mount_gradio_app(fastapi_app, demo, path="/", ssr_mode=False)
