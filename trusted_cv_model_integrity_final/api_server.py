@@ -3717,7 +3717,7 @@ async def analyze(
     model_type, _ = identify_model_type(weights_path)
     if model_type == "smallcnn":
         return _smallcnn_phase6_9_mock(model_ref)
-    if model_type != "yolo":
+    if model_type not in ("yolo", "onnx"):
         return {"error": f"Phase 6-9 inference adapter unavailable for model type: {model_type}"}
 
     model_sha = sha256_file(weights_path)
@@ -3818,8 +3818,8 @@ async def analyze_batch(
         return {"error": "Model session not found. Upload the model again."}
     weights_path = candidates[0]
     model_type, _ = identify_model_type(weights_path)
-    if model_type != "yolo":
-        return {"error": "Live camera batch inference is currently available for YOLO models only."}
+    if model_type not in ("yolo", "onnx"):
+        return {"error": "Live camera batch inference is currently available for YOLO/ONNX models only."}
     if not 6 <= len(files) <= 9:
         return {"error": "Live camera inference expects 6 to 9 captured frames."}
     model_sha = sha256_file(weights_path)
