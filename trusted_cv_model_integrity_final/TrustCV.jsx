@@ -6,7 +6,9 @@ import {
   ShieldAlert, Lock, AlertOctagon, Bug, FileCheck, Activity, Flame, Info
 } from "lucide-react";
 
-const API_BASE = import.meta.env.VITE_TRUSTCV_API || "https://rishi-deploy-trustcv-api.hf.space";
+const API_BASE = (import.meta.env.VITE_TRUSTCV_API && !import.meta.env.VITE_TRUSTCV_API.includes("onrender.com"))
+  ? import.meta.env.VITE_TRUSTCV_API
+  : "https://rishi-deploy-trustcv-api.hf.space";
 
 async function readJson(res) {
   const data = await res.json().catch(() => ({}));
