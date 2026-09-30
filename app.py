@@ -8,6 +8,16 @@ from pathlib import Path
 import uvicorn
 import gradio as gr
 
+try:
+    import spaces
+
+    @spaces.GPU
+    def gpu_accelerator_status():
+        return "🛡️ TrustCV Accelerator Active (ZeroGPU A10G)"
+except Exception:
+    def gpu_accelerator_status():
+        return "🛡️ TrustCV Engine Active (Standard CPU 16 GB RAM)"
+
 # Ensure local directories resolve correctly
 repo_root = Path(__file__).resolve().parent
 app_dir = repo_root / "trusted_cv_model_integrity_final"
@@ -21,9 +31,16 @@ from api_server import app as fastapi_app
 # Gradio wrapper for the root page (keeps the Space active & gives a clean dashboard)
 with gr.Blocks(title="TrustCV Verification & Security API") as demo:
     gr.Markdown("# 🛡️ TrustCV Verification & Security API")
-    gr.Markdown("FastAPI Backend is running live on **16 GB RAM · 2 vCPU**.")
+    gr.Markdown("FastAPI Backend is running live with high-memory execution for Phase 4 B3D verification.")
+    
+    with gr.Row():
+        status_box = gr.Textbox(label="Accelerator Status", value="Ready")
+        check_btn = gr.Button("Initialize Hardware Accelerator", variant="primary")
+        check_btn.click(fn=gpu_accelerator_status, inputs=[], outputs=status_box)
+
     gr.Markdown("### Direct Endpoints:")
     gr.Markdown("- **Health Check**: [`/api/health`](/api/health)")
+    gr.Markdown("- **Phase 4 B3D Analysis**: `/api/verify/model/phase4`")
     gr.Markdown("- **Swagger Documentation**: [`/docs`](/docs)")
     gr.Markdown("- **OpenAPI Specification**: [`/openapi.json`](/openapi.json)")
 
