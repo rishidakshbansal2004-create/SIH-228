@@ -48,4 +48,23 @@ with gr.Blocks(title="TrustCV Verification & Security API") as demo:
 app = gr.mount_gradio_app(fastapi_app, demo, path="/")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    import os
+    import subprocess
+    print("=== STARTUP DIAGNOSTICS ===", flush=True)
+    print(f"PORT: {os.environ.get('PORT')}", flush=True)
+    print(f"GRADIO_SERVER_PORT: {os.environ.get('GRADIO_SERVER_PORT')}", flush=True)
+    print(f"SPACES_ZERO_GPU: {os.environ.get('SPACES_ZERO_GPU')}", flush=True)
+    try:
+        print("=== RUNNING PROCESSES ===", flush=True)
+        print(subprocess.check_output(["ps", "-ef"], text=True), flush=True)
+    except Exception as e:
+        print(f"ps error: {e}", flush=True)
+    try:
+        print("=== LISTENING PORTS ===", flush=True)
+        print(subprocess.check_output("netstat -tlpn 2>/dev/null || ss -tlpn 2>/dev/null", shell=True, text=True), flush=True)
+    except Exception as e:
+        print(f"netstat error: {e}", flush=True)
+
+    port = int(os.environ.get("PORT", os.environ.get("GRADIO_SERVER_PORT", 7860)))
+    print(f"Binding uvicorn to 0.0.0.0:{port}...", flush=True)
+    uvicorn.run(app, host="0.0.0.0", port=port)
