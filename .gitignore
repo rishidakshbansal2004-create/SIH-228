@@ -6,6 +6,9 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.egg-info/
+.installed.cfg
+*.egg
 .env
 .env.*
 !.env.example
@@ -27,20 +30,25 @@ build/
 runtime_models/
 cifar10_convnext_tiny_badnet_0_001/
 
-# Datasets / Training Data
+# Datasets / Training Data / Scratch
 data/
 datasets/
 backdoor_testbed/
+backdoor_yolo_testbed/
+scratch*/
+runs/
 *.cache
 labels.cache
 
 # Local Audit / Runtime State
 audit/
+runtime/
 trusted_registry.json
 audit_ledger.jsonl
 mirad_audit_ledger.jsonl
 
-# Generated Reports
+# Generated Reports & PDFs
+*.pdf
 trace_report*.json
 trace_calibration*.json
 ablation_report*.json
@@ -48,10 +56,7 @@ phase4_report*.json
 phase4_generic_report*.json
 strip_report*.json
 
-# Local Images / Test Artifacts
-test.png
-image.png
-imagecopy.png
+# Recovered Triggers / Local Artifacts
 recovered_trigger.png
 recovered_trigger_mask.png
 recovered_trigger.pt
@@ -71,6 +76,7 @@ Thumbs.db
 
 # MIRAD local Python environment
 MIRAD/Lib/
+MIRAD/Scripts/
 MIRAD/bin/
 MIRAD/include/
 MIRAD/lib/

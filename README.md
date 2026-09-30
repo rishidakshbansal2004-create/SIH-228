@@ -94,19 +94,20 @@ The Phase 4 implementation explicitly runs Stage 2 only when Stage 1 produces a 
 When only forward-pass access is available and model weights/gradients are unavailable:
 
 ```text
-Black-box Model
+Black-box Model (PyTorch / ONNX)
       │
-      ▼
-   STRIP
-      │
-      ▼
-Entropy-based
-trigger detection
+      ├──────────────────────┐
+      ▼                      ▼
+B3D Spatial Trigger        STRIP
+Inversion (ICCV 2021)   (Entropy-based)
+      │                      │
+      ▼                      ▼
+Trigger Patch Scan      Entropy Analysis
 ```
 
-Neural Cleanse and gradient-based ablation are unavailable in this mode.
-
-The system therefore falls back to **STRIP**, while explicitly recording this limitation in the assessment report.
+Neural Cleanse and gradient-based ablation require internal graph gradients. In black-box mode:
+- For **Object Detection (YOLO)**: The system applies **B3D Spatial Trigger Inversion** (ICCV 2021) across standardized canvases to detect localized trigger patches and global detection-head bias manipulation on both PyTorch (`.pt`) and ONNX (`.onnx`) models without requiring gradient access.
+- For **Classification**: The system applies **B3D** optimization or falls back to **STRIP** entropy analysis, explicitly recording the operational constraints in the audit assessment.
 
 ---
 
@@ -739,6 +740,7 @@ Backdoor detection is handled separately through Phase 4 model verification rath
 | Phase 4 | Model integrity | Implemented |
 | Phase 4 | Neural Cleanse | Implemented |
 | Phase 4 | Ablation validation | Implemented |
+| Phase 4 | B3D Trigger Inversion (YOLO & Classification) | Implemented |
 | Phase 4 | STRIP fallback | Implemented |
 | Phase 6 | OOD / shift gate | Implemented |
 | Phase 7 | Trusted YOLO inference | Implemented |

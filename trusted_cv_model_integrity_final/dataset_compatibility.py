@@ -326,3 +326,314 @@ def validate_yolo_reference(model_info: dict[str, Any], dataset_info: dict[str, 
         'errors': errors,
         'warnings': warnings,
     }
+
+
+def preprocess_reference_images(
+    source: str | Path | list[Any],
+    imgsz: int = 640,
+    max_samples: int = 16,
+) -> list[Any]:
+    """
+    Standardized Preprocessor for Phase 4 Reference Images.
+    Loads, validates, decodes, and standardizes reference frames to (imgsz, imgsz) RGB arrays.
+    
+    Supports:
+    1. ZIP archive containing images (.zip)
+    2. Directory containing image files
+    3. Single image file or list of image files / numpy arrays
+    
+    Returns:
+    List of uint8 RGB numpy arrays shaped [imgsz, imgsz, 3].
+    """
+    import numpy as np
+    from PIL import Image
+
+    processed_images: list[np.ndarray] = []
+
+    # Case 1: ZIP Archive
+    if isinstance(source, (str, Path)) and Path(source).is_file() and zipfile.is_zipfile(Path(source)):
+        with zipfile.ZipFile(Path(source), 'r') as zf:
+            img_members = _zip_images(zf)[:max_samples]
+            for name in img_members:
+                try:
+                    data = zf.read(name)
+                    with Image.open(io.BytesIO(data)) as im:
+                        rgb_im = im.convert('RGB')
+                        if rgb_im.size != (imgsz, imgsz):
+                            rgb_im = rgb_im.resize((imgsz, imgsz), Image.Resampling.BILINEAR)
+                        processed_images.append(np.array(rgb_im, dtype=np.uint8))
+                except Exception:
+                    continue
+
+    # Case 2: Directory Path
+    elif isinstance(source, (str, Path)) and Path(source).is_dir():
+        files = [p for p in Path(source).iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS][:max_samples]
+        for p in files:
+            try:
+                with Image.open(p) as im:
+                    rgb_im = im.convert('RGB')
+                    if rgb_im.size != (imgsz, imgsz):
+                        rgb_im = rgb_im.resize((imgsz, imgsz), Image.Resampling.BILINEAR)
+                    processed_images.append(np.array(rgb_im, dtype=np.uint8))
+            except Exception:
+                continue
+
+    # Case 3: List of items (paths, filenames, or numpy arrays)
+    elif isinstance(source, (list, tuple)):
+        for item in source[:max_samples]:
+            if isinstance(item, np.ndarray):
+                arr = item.copy()
+                if arr.ndim == 2:
+                    arr = np.stack([arr] * 3, axis=-1)
+                elif arr.ndim == 3 and arr.shape[2] == 1:
+                    arr = np.concatenate([arr] * 3, axis=-1)
+                elif arr.ndim == 3 and arr.shape[2] == 4:
+                    arr = arr[:, :, :3]
+                
+                h, w = arr.shape[:2]
+                if (w, h) != (imgsz, imgsz):
+                    im = Image.fromarray(arr).resize((imgsz, imgsz), Image.Resampling.BILINEAR)
+                    arr = np.array(im, dtype=np.uint8)
+                processed_images.append(arr)
+            elif isinstance(item, (str, Path)) and Path(item).exists():
+                try:
+                    with Image.open(Path(item)) as im:
+                        rgb_im = im.convert('RGB')
+                        if rgb_im.size != (imgsz, imgsz):
+                            rgb_im = rgb_im.resize((imgsz, imgsz), Image.Resampling.BILINEAR)
+                        processed_images.append(np.array(rgb_im, dtype=np.uint8))
+                except Exception:
+                    continue
+
+    # Case 4: Single file path
+    elif isinstance(source, (str, Path)) and Path(source).exists():
+        try:
+            with Image.open(Path(source)) as im:
+                rgb_im = im.convert('RGB')
+                if rgb_im.size != (imgsz, imgsz):
+                    rgb_im = rgb_im.resize((imgsz, imgsz), Image.Resampling.BILINEAR)
+                processed_images.append(np.array(rgb_im, dtype=np.uint8))
+        except Exception:
+            pass
+
+    return processed_images
+
+
+def assess_dataset_tier(
+    dataset_path: str | Path | None,
+    model_info: dict[str, Any],
+    model_type: str,
+    dataset_policy: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Evaluates dataset compatibility into explicit operational tiers:
+    - NOT_COMPATIBLE: Non-image files, corrupted archive, or empty -> BLOCKED
+    - PREPROCESSED_COMPATIBLE: Valid images auto-standardized to 640x640 RGB -> B3D ENABLED, TRACE DISABLED
+    - HIGHLY_COMPATIBLE: Valid images + verified ground truth labels matching class space -> B3D + TRACE ENABLED
+    - INTERNAL_RESOLVED: When model uses built-in reference frames / testbeds -> AUTO-RESOLVED
+    """
+    policy = dataset_policy or {}
+    source_policy = policy.get("source", "internal_reference_optional_user")
+
+    # Case A: No dataset supplied
+    if dataset_path is None or (isinstance(dataset_path, (str, Path)) and not Path(dataset_path).exists()):
+        if source_policy in ("internal_auto", "internal_reference_optional_user"):
+            return {
+                "status": "INTERNAL_RESOLVED",
+                "compatible": True,
+                "disposition": "internal_resolved",
+                "tier": "INTERNAL_RESOLVED",
+                "trace_eligible": False,
+                "detail": "TrustCV internal reference dataset auto-configured for B3D backdoor scanning.",
+                "num_images": 4,
+                "preprocessed_count": 4,
+                "checks": [
+                    {"id": "source", "passed": True, "detail": "Internal verified baseline canvas/frames"},
+                    {"id": "b3d_trigger_inversion", "passed": True, "detail": "Active (Zero-Knowledge Black-Box)"},
+                    {"id": "trace_behavioral", "passed": False, "detail": "Standby (requires specific user dataset)"},
+                ],
+                "errors": [],
+                "warnings": ["Using internal reference frames. Upload custom in-distribution dataset if TRACE behavioral evidence is also desired."],
+            }
+        else:
+            return {
+                "status": "NOT_COMPATIBLE",
+                "compatible": False,
+                "disposition": "blocked",
+                "tier": "NOT_COMPATIBLE",
+                "trace_eligible": False,
+                "detail": "This model requires a clean calibration dataset matching its class distribution before proceeding.",
+                "num_images": 0,
+                "preprocessed_count": 0,
+                "checks": [
+                    {"id": "dataset_presence", "passed": False, "detail": "No dataset supplied"},
+                ],
+                "errors": ["Clean calibration dataset is mandatory for Neural Cleanse and Activation Ablation."],
+                "warnings": [],
+            }
+
+    dpath = Path(dataset_path)
+
+    # Case B: Inspect uploaded file/archive
+    if dpath.is_file() and not zipfile.is_zipfile(dpath) and dpath.suffix.lower() not in IMAGE_EXTENSIONS:
+        return {
+            "status": "NOT_COMPATIBLE",
+            "compatible": False,
+            "disposition": "blocked",
+            "tier": "NOT_COMPATIBLE",
+            "trace_eligible": False,
+            "detail": f"Uploaded file format '{dpath.suffix}' is not a supported image dataset. Please upload a .zip archive, folder, or image files.",
+            "num_images": 0,
+            "preprocessed_count": 0,
+            "checks": [
+                {"id": "format_validation", "passed": False, "detail": f"Invalid extension {dpath.suffix}"},
+            ],
+            "errors": ["Only image datasets (.zip containing images or raw images) are supported."],
+            "warnings": [],
+        }
+
+    # Inspect images and labels
+    if dpath.is_file() and zipfile.is_zipfile(dpath):
+        dataset_info = inspect_reference_zip(dpath)
+        img_count = dataset_info.get("num_images") or 0
+        if img_count == 0:
+            return {
+                "status": "NOT_COMPATIBLE",
+                "compatible": False,
+                "disposition": "blocked",
+                "tier": "NOT_COMPATIBLE",
+                "trace_eligible": False,
+                "detail": "The uploaded ZIP archive contains 0 valid image files (.jpg, .png, etc.). Please upload a valid image dataset.",
+                "num_images": 0,
+                "preprocessed_count": 0,
+                "checks": [
+                    {"id": "image_presence", "passed": False, "detail": "0 images detected in archive"},
+                ],
+                "errors": ["Archive contains no supported image files."],
+                "warnings": [],
+            }
+
+        # Test preprocessing standardization
+        sample_pre = preprocess_reference_images(dpath, imgsz=640, max_samples=8)
+        preprocessed_count = len(sample_pre)
+
+        # Check YOLO compatibility
+        if model_type in ("yolo", "onnx"):
+            compat = validate_yolo_reference(model_info, dataset_info)
+            has_labels = dataset_info.get("label_status") == "present"
+            class_match = any(c.get("id") == "class_space" and c.get("passed") is True for c in compat.get("checks", []))
+
+            if has_labels and class_match and compat.get("compatible"):
+                return {
+                    "status": "HIGHLY_COMPATIBLE",
+                    "compatible": True,
+                    "disposition": "highly_compatible",
+                    "tier": "HIGHLY_COMPATIBLE",
+                    "trace_eligible": True,
+                    "detail": "Verified reference images with ground-truth labels matching model class space. Unlocks both B3D Trigger Inversion and TRACE Behavioral Assurance.",
+                    "num_images": img_count,
+                    "preprocessed_count": preprocessed_count,
+                    "dataset_info": dataset_info,
+                    "checks": [
+                        *compat.get("checks", []),
+                        {"id": "preprocessing", "passed": True, "detail": f"Sample standardized to 640×640 RGB ({preprocessed_count} frames verified)"},
+                        {"id": "trace_readiness", "passed": True, "detail": "Eligible for TRACE behavioral anomaly calibration"},
+                    ],
+                    "errors": compat.get("errors", []),
+                    "warnings": compat.get("warnings", []),
+                }
+            else:
+                return {
+                    "status": "PREPROCESSED_COMPATIBLE",
+                    "compatible": True,
+                    "disposition": "preprocessed",
+                    "tier": "PREPROCESSED_COMPATIBLE",
+                    "trace_eligible": False,
+                    "detail": f"Reference images ({img_count} found) successfully standardized to 640×640 RGB. Compatible for B3D Black-Box Backdoor Inversion.",
+                    "num_images": img_count,
+                    "preprocessed_count": preprocessed_count,
+                    "dataset_info": dataset_info,
+                    "checks": [
+                        {"id": "image_presence", "passed": True, "detail": f"{img_count} images found in dataset"},
+                        {"id": "preprocessing", "passed": True, "detail": f"Auto-standardized to 640×640 RGB ({preprocessed_count} sample frames verified)"},
+                        {"id": "b3d_inversion", "passed": True, "detail": "Active for spatial backdoor trigger search"},
+                        {"id": "trace_behavioral", "passed": False, "detail": "Disabled (ground-truth bounding box labels matching class space not found)"},
+                    ],
+                    "errors": [],
+                    "warnings": ["Labels are absent or do not fully match model classes. B3D trigger search will run; TRACE behavioral analysis is bypassed."],
+                }
+
+        # Check SmallCNN / Classification compatibility
+        elif model_type == "smallcnn":
+            fmt = dataset_info.get("format")
+            if fmt == "cifar10":
+                return {
+                    "status": "HIGHLY_COMPATIBLE",
+                    "compatible": True,
+                    "disposition": "highly_compatible",
+                    "tier": "HIGHLY_COMPATIBLE",
+                    "trace_eligible": True,
+                    "detail": "Verified 10-class CIFAR-10 reference dataset. Fully compatible with Neural Cleanse and Activation Ablation.",
+                    "num_images": img_count,
+                    "preprocessed_count": preprocessed_count,
+                    "dataset_info": dataset_info,
+                    "checks": [
+                        {"id": "format", "passed": True, "detail": "CIFAR-10 clean binary reference"},
+                        {"id": "class_space", "passed": True, "detail": "10-class alignment verified"},
+                        {"id": "neural_cleanse", "passed": True, "detail": "Ready for multi-class trigger reverse engineering"},
+                    ],
+                    "errors": [],
+                    "warnings": [],
+                }
+            else:
+                return {
+                    "status": "PREPROCESSED_COMPATIBLE",
+                    "compatible": True,
+                    "disposition": "preprocessed",
+                    "tier": "PREPROCESSED_COMPATIBLE",
+                    "trace_eligible": False,
+                    "detail": "Classification images preprocessed. Compatible for general query evaluation.",
+                    "num_images": img_count,
+                    "preprocessed_count": preprocessed_count,
+                    "dataset_info": dataset_info,
+                    "checks": [
+                        {"id": "image_presence", "passed": True, "detail": f"{img_count} images found"},
+                    ],
+                    "errors": [],
+                    "warnings": ["Non-standard CIFAR-10 distribution; verify class mapping before full ablation."],
+                }
+
+    # Raw image file or directory fallback
+    sample_pre = preprocess_reference_images(dpath, imgsz=640, max_samples=8)
+    if not sample_pre:
+        return {
+            "status": "NOT_COMPATIBLE",
+            "compatible": False,
+            "disposition": "blocked",
+            "tier": "NOT_COMPATIBLE",
+            "trace_eligible": False,
+            "detail": "Could not decode any valid images from the supplied input.",
+            "num_images": 0,
+            "preprocessed_count": 0,
+            "checks": [{"id": "image_decoding", "passed": False, "detail": "Failed to decode image data"}],
+            "errors": ["Failed to load image samples from source."],
+            "warnings": [],
+        }
+
+    return {
+        "status": "PREPROCESSED_COMPATIBLE",
+        "compatible": True,
+        "disposition": "preprocessed",
+        "tier": "PREPROCESSED_COMPATIBLE",
+        "trace_eligible": False,
+        "detail": f"{len(sample_pre)} reference images standardized to 640×640 RGB. Compatible for B3D backdoor scanning.",
+        "num_images": len(sample_pre),
+        "preprocessed_count": len(sample_pre),
+        "checks": [
+            {"id": "image_presence", "passed": True, "detail": f"{len(sample_pre)} images standardized"},
+            {"id": "b3d_inversion", "passed": True, "detail": "Active for spatial backdoor trigger search"},
+        ],
+        "errors": [],
+        "warnings": ["Unlabeled images: B3D trigger inversion enabled; TRACE behavioral bypassed."],
+    }
+
