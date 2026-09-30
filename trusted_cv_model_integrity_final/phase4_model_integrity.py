@@ -21,9 +21,8 @@ import strip_cifar as strip_mod
 import ablation_stage2 as ablation_mod
 
 
-DEVICE = "cuda" if torch.cuda.is_available() else (
-    "mps" if torch.backends.mps.is_available() else "cpu"
-)
+from crypto_utils import get_safe_device
+DEVICE = get_safe_device()
 
 
 def _to_flag(sub_report, check_name):

@@ -44,7 +44,8 @@ import torch.nn.functional as F
 
 from poison_and_train import SmallCNN, add_trigger
 
-DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
+from crypto_utils import get_safe_device
+DEVICE = get_safe_device()
 NORM_MEAN = (0.4914, 0.4822, 0.4465)
 NORM_STD = (0.2470, 0.2435, 0.2616)
 

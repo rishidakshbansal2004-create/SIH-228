@@ -76,7 +76,8 @@ class OODGate:
         return brightness,contrast,saturation,sharpness
 
     def _predict(self,img,conf=.25,iou=.45):
-        r=self.detector.model.predict(source=img,conf=conf,iou=iou,verbose=False)[0]
+        dev = getattr(self.detector, 'device', 'cpu') or 'cpu'
+        r=self.detector.model.predict(source=img,conf=conf,iou=iou,verbose=False,device=dev)[0]
         out=[]
         if r.boxes is None:return out
         for score,cls,box in zip(r.boxes.conf.cpu().numpy(),r.boxes.cls.cpu().numpy().astype(int),r.boxes.xyxy.cpu().numpy()):

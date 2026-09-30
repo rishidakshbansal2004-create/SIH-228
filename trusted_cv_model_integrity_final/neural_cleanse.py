@@ -20,9 +20,8 @@ from torchvision.utils import save_image
 from poison_and_train import SmallCNN, add_trigger
 
 
-DEVICE = "cuda" if torch.cuda.is_available() else (
-    "mps" if torch.backends.mps.is_available() else "cpu"
-)
+from crypto_utils import get_safe_device
+DEVICE = get_safe_device()
 
 IMG_SHAPE = (3, 32, 32)
 NUM_CLASSES = 10

@@ -70,12 +70,8 @@ class ModelOracle:
         self.normalize_fn = normalize_fn
         self.num_classes = num_classes
 
-        if device is None:
-            self.device = "cuda" if torch.cuda.is_available() else (
-                "mps" if torch.backends.mps.is_available() else "cpu"
-            )
-        else:
-            self.device = device
+        from crypto_utils import get_safe_device
+        self.device = get_safe_device(device)
 
         if self.model_type == "pytorch" and isinstance(self.model, nn.Module):
             self.model.to(self.device)

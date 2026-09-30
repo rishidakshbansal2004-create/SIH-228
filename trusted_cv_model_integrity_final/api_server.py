@@ -36,7 +36,7 @@ from reportlab.platypus import (
     PageBreak, KeepTogether
 )
 
-from crypto_utils import sha256_bytes, sha256_file, canonical_json, utc_now, mirad_hash_object
+from crypto_utils import sha256_bytes, sha256_file, canonical_json, utc_now, mirad_hash_object, get_safe_device
 from ledger import AuditLedger
 from ood_gate import OODGate
 from inference import TrustedDetector
@@ -662,7 +662,7 @@ def _smallcnn_phase6_9_mock(model_digest: str) -> dict[str, Any]:
 def _get_yolo_pipeline(weights_path: Path):
     key = sha256_file(weights_path)
     if key not in _detector_cache:
-        detector = TrustedDetector(str(weights_path))
+        detector = TrustedDetector(str(weights_path), device=get_safe_device())
         gate = OODGate(detector)
         integrity = InferenceIntegrity(detector)
         _detector_cache[key] = (detector, gate, integrity)

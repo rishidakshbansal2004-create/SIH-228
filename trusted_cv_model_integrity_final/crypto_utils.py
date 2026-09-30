@@ -35,3 +35,26 @@ def mirad_sha256_file(path):
 
 def mirad_hash_object(obj):
     return hash_canonical_object(obj)
+
+
+def get_safe_device(preferred: str | None = None) -> str:
+    """Safely resolve device across CPU, MPS and ZeroGPU sandboxes."""
+    if preferred is not None and preferred in ("cpu", "mps", "cuda"):
+        return preferred
+    import os
+    # ZeroGPU on Hugging Face strictly forbids raw CUDA init outside @spaces.GPU workers
+    if os.environ.get("SPACES_ZERO_GPU") or os.environ.get("ZERO_GPU_PLATFORM") or os.path.exists("/etc/zero"):
+        return "cpu"
+    try:
+        import torch
+        if torch.cuda.is_available():
+            try:
+                torch.cuda.current_device()
+                return "cuda"
+            except Exception:
+                return "cpu"
+        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            return "mps"
+    except Exception:
+        pass
+    return "cpu"
