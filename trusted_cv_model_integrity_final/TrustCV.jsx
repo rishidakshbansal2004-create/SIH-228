@@ -1793,11 +1793,28 @@ export default function TrustCV() {
         </> : <>
           <Header number={3} eyebrow="PHASE 3 · TRUST & IDENTITY REPORT" title="Trust & Identity Checkpoint" subtitle="Artifact identity registration and cryptographic baseline verification. This is not a model-safety verdict."/>
           <div className="tc-meta"><span>{inputName}</span><span>{phase3Result.model_type || "Model"}</span></div>
-          <div className="tc-summary"><div><span>SHA-256</span><b>{phase3Result.sha256 || "—"}</b></div><div><span>Decision</span><b>{phase3Passed ? (phase3Review ? "REVIEW" : "PASS") : "STOP"}</b></div></div>
+          <div className="tc-summary">
+            <div><span>SHA-256</span><b style={{fontSize: "0.78rem", wordBreak: "break-all"}}>{phase3Result.sha256 || "—"}</b></div>
+            <div><span>Ledger Provenance</span><b style={{color: phase3Result.ledger_status === "VERIFIED" ? "var(--pass, #3DDC84)" : phase3Result.ledger_status === "SUBSTITUTED" ? "var(--risk, #FF6B6B)" : "var(--warn, #FBBF24)"}}>{phase3Result.ledger_status === "VERIFIED" ? "VERIFIED BASELINE" : phase3Result.ledger_status === "SUBSTITUTED" ? "SUBSTITUTION DETECTED" : "NEW ARTIFACT (PENDING AUDIT)"}</b></div>
+            <div><span>Phase 3 Decision</span><b style={{color: phase3Passed ? (phase3Review ? "var(--warn, #FBBF24)" : "var(--pass, #3DDC84)") : "var(--risk, #FF6B6B)"}}>{phase3Passed ? (phase3Review ? "REVIEW" : "PASS") : "STOP"}</b></div>
+          </div>
           <HashCheckpoint checkpoint={phase3Result.hash_checkpoint}/>
           <div className="tc-section-label">IDENTITY CHECKS · CLICK TO INSPECT</div>
           <div className="tc-checklist">{phase3Checks.length ? phase3Checks.map((c,i)=><CheckCard key={c.id || i} label={c.label || `Check ${i+1}`} state={checkState(c)} detail={c.detail} evidence={c.evidence || c.data || {}}/>) : <CheckCard label="MIRAD verification" state={phase3Passed ? "pass":"fail"} detail={phase3Result.detail || "Phase 3 response received."} evidence={phase3Result.mirad || {}}/>}</div>
-          <Banner status={phase3Passed ? (phase3Review ? "warn" : "trusted") : "risk"} text={phase3Passed ? (phase3Review ? "Identity checks completed, but digital signature is unavailable for this model. Review the limitations, then proceed to Phase 4." : "Model identity checks completed. Proceed to Phase 4 for model integrity and backdoor trigger analysis.") : "The required Phase 3 identity checks did not pass. The workflow stops here."}/>
+          <Banner
+            status={phase3Result?.ledger_status === "SUBSTITUTED" ? "risk" : phase3Passed ? (phase3Review ? "warn" : "trusted") : "risk"}
+            text={
+              phase3Result?.ledger_status === "SUBSTITUTED"
+                ? "CRITICAL ALERT: Model hash mismatch against certified baseline! The uploaded weights differ from the approved version in the ledger. Flagged for REVIEW / QUARANTINE."
+                : phase3Result?.ledger_status === "NEW_UNREGISTERED"
+                  ? "New unverified model artifact detected. Flagged for REVIEW. If it passes all subsequent integrity and backdoor checks, it will be automatically enrolled into the trusted ledger."
+                  : phase3Passed
+                    ? (phase3Review
+                        ? "Model identity checks completed. Model is under REVIEW. Proceed to Phase 4 for backdoor trigger inversion."
+                        : "Model verified against certified baseline in the trusted ledger. Proceed to Phase 4 for model integrity analysis.")
+                    : "The required Phase 3 identity checks did not pass. The workflow stops here."
+            }
+          />
           <div className="tc-report-actions">
             <DownloadButton filename={`TrustCV_Phase3_${inputName.replace(/[^a-z0-9._-]/gi,"_")}.pdf`} payload={phase3Report} label="Download Phase 3 PDF" pdf/>
             <button type="button" className="tc-ghost-btn" onClick={() => setStep(3)}><ArrowLeft size={15}/> Back to Phase 2</button>
@@ -1854,6 +1871,15 @@ export default function TrustCV() {
             <div className="tc-evidence-row"><span>SUSPICIOUS FRACTION</span><strong>{Math.round(phase4Suspicious * 100)}%</strong></div>
             <div className="tc-evidence-row"><span>INTERPRETATION</span><strong>Zero-knowledge black-box spatial trigger inversion & behavioral logit drift assessment</strong></div>
           </div>
+          {(phase4Result?.ledger_enrollment?.enrolled || phase4Accepted) && (
+            <div style={{marginTop: "1.2rem", padding: "14px 18px", borderRadius: "8px", background: "rgba(61, 220, 132, 0.12)", border: "1px solid #3DDC84", display: "flex", alignItems: "center", gap: "12px"}}>
+              <ShieldCheck size={22} color="#3DDC84" style={{flexShrink: 0}} />
+              <div style={{fontSize: "0.85rem", color: "#E2E8F0", lineHeight: "1.4"}}>
+                <b style={{color: "#3DDC84", display: "block", marginBottom: "2px"}}>Auto-Enrolled into Trusted Ledger</b>
+                <span>Model passed all integrity & backdoor analysis stages. Cryptographic weight digest (<code>{phase4Result.sha256?.slice(0, 16)}...</code>) is now recorded as an APPROVED baseline in the offline tamper-evident ledger.</span>
+              </div>
+            </div>
+          )}
           <div className="tc-report-actions">
             <DownloadButton filename={`TrustCV_Phase4_${inputName.replace(/[^a-z0-9._-]/gi,"_")}.pdf`} payload={phase4Report} label="Download Phase 4 PDF" pdf/>
             <button type="button" className="tc-ghost-btn" onClick={() => setStep(4)}><ArrowLeft size={15}/> Back to Phase 3</button>

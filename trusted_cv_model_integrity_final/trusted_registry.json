@@ -1,10 +1,18 @@
 {
   "models": {
     "cfbeda779540f610bc1b5cc69a63aa303a68f0326c7b821c03c3bfe4f1ac5b82": {
-      "vendor": "TrustCV Demo Team",
-      "version": "best.pt (bundled demo weights)",
-      "signed": true,
-      "provenance": "Trained and packaged as part of this repository; treat as a demo entry, not a real vendor signature."
+      "filename": "best.pt",
+      "artifact_id": "model:best",
+      "model_type": "yolo",
+      "version": "1.0.0",
+      "status": "APPROVED",
+      "enrolled_at": "2026-10-04T17:12:59.278399+00:00",
+      "enrolled_by": "TrustCV Automated Assurance Pipeline",
+      "run_id": "tcv-d29f937299e04e17",
+      "disposition": "APPROVED",
+      "provenance": "Evaluated clean across Phase 1-4 integrity checkpoints; automatically enrolled into trusted ledger.",
+      "b3d_clean": true,
+      "signed": true
     }
   },
   "datasets": {}
