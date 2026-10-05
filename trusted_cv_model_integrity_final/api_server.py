@@ -642,7 +642,13 @@ def profile_model(path: Path, filename: str, requested_access_level: str = "auto
     }
 
 
-def _mirad_model_check(path: Path, filename: str, model_type: str) -> dict[str, Any]:
+def _mirad_model_check(
+    path: Path,
+    filename: str,
+    model_type: str,
+    uploaded_signature_str: str | None = None,
+    uploaded_public_key_str: str | None = None,
+) -> dict[str, Any]:
     digest = sha256_file(path)
     artifact_id = _artifact_id(filename)
     version = "1.0.0"
@@ -727,84 +733,98 @@ def _mirad_model_check(path: Path, filename: str, model_type: str) -> dict[str, 
         except Exception:
             pass
 
-    # Check 4: Cryptographic Digital Signature verification
-    sig_b64 = None
-    pub_b64 = None
-    key_id = "vendor-key-primary"
+    # Check 4: Cryptographic Digital Signature verification (User Explicit Upload)
+    sig_b64 = uploaded_signature_str.strip() if (uploaded_signature_str and uploaded_signature_str.strip()) else None
+    pub_input = uploaded_public_key_str.strip() if (uploaded_public_key_str and uploaded_public_key_str.strip()) else None
+    key_id = "uploaded-vendor-key"
 
-    # Step A: Check exact match ledger record
-    if exact_match_meta and exact_match_meta.get("signature") and exact_match_meta.get("public_key"):
-        sig_b64 = exact_match_meta.get("signature")
-        pub_b64 = exact_match_meta.get("public_key")
-        key_id = exact_match_meta.get("signing_key_id", key_id)
-
-    # Step B: Check companion files on disk (.sig or .manifest.json)
-    if not sig_b64 and path:
-        model_p = Path(path)
-        sig_p = model_p.with_name(f"{model_p.name}.sig")
-        manifest_p = model_p.with_name(f"{model_p.name}.manifest.json")
-        if sig_p.exists():
-            try:
-                sig_b64 = sig_p.read_text(encoding="utf-8").strip()
-            except Exception:
-                pass
-        elif manifest_p.exists():
-            try:
-                mdata = json.loads(manifest_p.read_text(encoding="utf-8"))
-                sig_b64 = mdata.get("signature")
-                pub_b64 = pub_b64 or mdata.get("public_key")
-                key_id = mdata.get("signing_key_id", key_id)
-            except Exception:
-                pass
-
-    # Step C: Fall back to default vendor public key if signature exists but public_key is not in manifest
-    if sig_b64 and not pub_b64:
-        default_pub_pem = Path(__file__).resolve().parent / "keys" / "vendor_public_key.pem"
-        if default_pub_pem.exists():
-            try:
-                with open(default_pub_pem, "rb") as f:
-                    pk = serialization.load_pem_public_key(f.read())
-                    raw_bytes = pk.public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
-                    pub_b64 = base64.b64encode(raw_bytes).decode("ascii")
-            except Exception:
-                pass
-
-    # Step D: Cryptographic verification
-    sig_evidence = {}
-    if sig_b64 and pub_b64:
+    # Extract signature & pubkey if manifest JSON was uploaded as signature
+    if sig_b64 and sig_b64.startswith("{"):
         try:
-            raw_pk_bytes = base64.b64decode(pub_b64)
-            public_key_obj = ed25519.Ed25519PublicKey.from_public_bytes(raw_pk_bytes)
+            mdata = json.loads(sig_b64)
+            sig_b64 = mdata.get("signature")
+            if not pub_input:
+                pub_input = mdata.get("public_key")
+            key_id = mdata.get("signing_key_id", key_id)
+        except Exception:
+            pass
+
+    # Parse public key object if provided
+    public_key_obj = None
+    pub_b64_str = None
+    if pub_input:
+        try:
+            if "BEGIN PUBLIC KEY" in pub_input or "BEGIN CERTIFICATE" in pub_input:
+                pk = serialization.load_pem_public_key(pub_input.encode("utf-8"))
+                raw_bytes = pk.public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+                pub_b64_str = base64.b64encode(raw_bytes).decode("ascii")
+                public_key_obj = pk
+            else:
+                raw_bytes = base64.b64decode(pub_input)
+                public_key_obj = ed25519.Ed25519PublicKey.from_public_bytes(raw_bytes)
+                pub_b64_str = pub_input
+        except Exception:
+            public_key_obj = None
+
+    sig_evidence = {}
+    if sig_b64 and public_key_obj:
+        # User uploaded BOTH digital signature and public key -> verify mathematically
+        try:
             sig_bytes = base64.b64decode(sig_b64)
             public_key_obj.verify(sig_bytes, digest.encode("utf-8"))
+            # MATCHED AND VERIFIED!
             signature_passed = True
-            signature_detail = f"Cryptographically verified using Ed25519 ({key_id}). Authentic vendor release."
+            signature_detail = f"Cryptographically verified using uploaded vendor public key ({key_id}). Authentic release."
             sig_evidence = {
                 "algorithm": "Ed25519",
                 "key_id": key_id,
-                "public_key": pub_b64[:16] + "...",
+                "public_key": pub_b64_str[:16] + "..." if pub_b64_str else "valid",
                 "signature": sig_b64[:20] + "...",
+                "status": "APPROVED",
                 "verified": True,
             }
-        except InvalidSignature:
+            if not is_substituted:
+                disposition = "accept"
+                ledger_status = "VERIFIED"
+                is_approved = True
+                detail_msg = f"Model authenticated with valid digital signature and certified in trusted ledger."
+                reg_detail = "Verified baseline and authentic cryptographic signature confirmed."
+        except (InvalidSignature, ValueError):
+            # DID NOT MATCH -> QUARANTINE!
             signature_passed = False
-            signature_detail = "CRITICAL: Digital signature mismatch! Model weights have been altered or forged."
+            disposition = "quarantine"
+            ledger_status = "QUARANTINED"
+            is_approved = False
+            hash_check_passed = False
+            detail_msg = f"CRITICAL SECURITY ALERT: Digital signature mismatch for '{filename}'! Model weights have been altered or signature was forged. Model is QUARANTINED."
+            signature_detail = "CRITICAL: Digital signature verification failed! Model weights do not match the supplied public key. QUARANTINED."
+            reg_detail = "Quarantined due to cryptographic signature forgery/mismatch."
             sig_evidence = {
                 "algorithm": "Ed25519",
-                "key_id": key_id,
                 "verified": False,
-                "reason": "InvalidSignature",
+                "status": "QUARANTINED",
+                "reason": "SignatureMismatchOrAlteredWeights",
             }
-        except Exception as e:
-            signature_passed = False
-            signature_detail = f"Signature verification error: {e}"
-    elif is_substituted and substituted_entry and substituted_entry[1].get("signature"):
-        signature_passed = False
-        signature_detail = "CRITICAL: Baseline model has registered signature; candidate model failed signature match."
-        sig_evidence = {"verified": False, "reason": "Substituted candidate weights do not match baseline signature"}
-    else:
+    elif sig_b64 and not public_key_obj:
         signature_passed = None
-        signature_detail = "No external cryptographic signature was supplied with this upload; provenance relies on SHA-256 weight digest."
+        disposition = "review"
+        signature_detail = "Digital signature uploaded without a valid vendor public key. Flagged for MANUAL REVIEW."
+        sig_evidence = {"status": "REVIEW", "reason": "MissingPublicKey"}
+    elif public_key_obj and not sig_b64:
+        signature_passed = None
+        disposition = "review"
+        signature_detail = "Vendor public key uploaded without digital signature file. Flagged for MANUAL REVIEW."
+        sig_evidence = {"status": "REVIEW", "reason": "MissingSignature"}
+    else:
+        # NEITHER uploaded -> Flag for REVIEW
+        signature_passed = None
+        disposition = "review"
+        if not is_substituted:
+            ledger_status = "PENDING_REVIEW"
+        signature_detail = "No vendor public key or digital signature uploaded. Model flagged for MANUAL REVIEW pending provenance clearance."
+        sig_evidence = {"status": "REVIEW", "reason": "NoKeyUploaded"}
+        if exact_match_meta and not is_substituted:
+            reg_detail = "Baseline hash registered, but no verification key uploaded; flagged for MANUAL REVIEW."
 
     checks = [
         {
@@ -1029,6 +1049,8 @@ async def verify_model_phase1(
 async def verify_model_phase3(
     file: UploadFile = File(...),
     reference_dataset: UploadFile | None = File(None),
+    signature_file: UploadFile | None = File(None),
+    public_key_file: UploadFile | None = File(None),
     access_level: str = Form("white_box"),
 ):
     """Run only Phase 3: model identity, type detection, and MIRAD verification."""
@@ -1037,6 +1059,18 @@ async def verify_model_phase3(
     filename = file.filename or "uploaded_model.pt"
     path = RUNTIME_DIR / f"{digest}{Path(filename).suffix.lower() or '.pt'}"
     path.write_bytes(data)
+
+    uploaded_sig_str = None
+    if signature_file and hasattr(signature_file, "read"):
+        sig_data = await signature_file.read()
+        if sig_data:
+            uploaded_sig_str = sig_data.decode("utf-8", errors="ignore")
+
+    uploaded_pub_str = None
+    if public_key_file and hasattr(public_key_file, "read"):
+        pub_data = await public_key_file.read()
+        if pub_data:
+            uploaded_pub_str = pub_data.decode("utf-8", errors="ignore")
 
     model_type, type_evidence = identify_model_type(path)
 
@@ -1057,7 +1091,13 @@ async def verify_model_phase3(
             "error": "Unsupported or unrecognized model format.",
         })
 
-    mirad = _mirad_model_check(path, filename, model_type)
+    mirad = _mirad_model_check(
+        path,
+        filename,
+        model_type,
+        uploaded_signature_str=uploaded_sig_str,
+        uploaded_public_key_str=uploaded_pub_str,
+    )
 
     reference_info = None
     if reference_dataset is not None and hasattr(reference_dataset, "read"):
@@ -3830,6 +3870,8 @@ async def generate_report_pdf(report: str = Form(...)):
 async def verify_model(
     file: UploadFile = File(...),
     reference_dataset: UploadFile | None = File(None),
+    signature_file: UploadFile | None = File(None),
+    public_key_file: UploadFile | None = File(None),
     access_level: str = Form("white_box"),
 ):
     data = await file.read()
@@ -3837,6 +3879,18 @@ async def verify_model(
     filename = file.filename or "uploaded_model.pt"
     path = RUNTIME_DIR / f"{digest}{Path(filename).suffix.lower() or '.pt'}"
     path.write_bytes(data)
+
+    uploaded_sig_str = None
+    if signature_file and hasattr(signature_file, "read"):
+        sig_data = await signature_file.read()
+        if sig_data:
+            uploaded_sig_str = sig_data.decode("utf-8", errors="ignore")
+
+    uploaded_pub_str = None
+    if public_key_file and hasattr(public_key_file, "read"):
+        pub_data = await public_key_file.read()
+        if pub_data:
+            uploaded_pub_str = pub_data.decode("utf-8", errors="ignore")
 
     model_type, type_evidence = identify_model_type(path)
     if model_type == "unknown":
@@ -3849,7 +3903,13 @@ async def verify_model(
             "error": "Unsupported or unrecognized model format.",
         }
 
-    mirad = _mirad_model_check(path, filename, model_type)
+    mirad = _mirad_model_check(
+        path,
+        filename,
+        model_type,
+        uploaded_signature_str=uploaded_sig_str,
+        uploaded_public_key_str=uploaded_pub_str,
+    )
 
     reference_images = None
     reference_info = None

@@ -48,11 +48,14 @@ const VerificationAPI = {
     if (dataset) payload.reference_dataset = dataset;
     return postForm("/api/verify/model/phase2", payload);
   },
-  async phase3(model) {
-    return postForm("/api/verify/model/phase3", {
+  async phase3(model, signature = null, publicKey = null) {
+    const payload = {
       file: model,
       access_level: "white_box"
-    });
+    };
+    if (signature) payload.signature_file = signature;
+    if (publicKey) payload.public_key_file = publicKey;
+    return postForm("/api/verify/model/phase3", payload);
   },
   async compatibility(model, dataset) {
     return postForm("/api/verify/dataset/compatibility", {
@@ -928,6 +931,8 @@ export default function TrustCV() {
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [modelFile, setModelFile] = useState(null);
+  const [signatureFile, setSignatureFile] = useState(null);
+  const [publicKeyFile, setPublicKeyFile] = useState(null);
   const [referenceDataset, setReferenceDataset] = useState(null);
   const [modelName, setModelName] = useState("");
   const [inputName, setInputName] = useState("");
@@ -950,7 +955,7 @@ export default function TrustCV() {
   const [error, setError] = useState(null);
 
   const reset = useCallback(() => {
-    setMode(null); setStep(0); setBusy(false); setModelFile(null); setReferenceDataset(null);
+    setMode(null); setStep(0); setBusy(false); setModelFile(null); setSignatureFile(null); setPublicKeyFile(null); setReferenceDataset(null);
     setModelName(""); setInputName(""); setInputSourceLabel("");
     setPhase1Result(null); setPhase2Result(null); setPhase3Result(null); setPhase4Result(null);
     setAccessLevel("auto"); setDatasetRequirements(null); setDatasetResult(null);
@@ -1021,7 +1026,7 @@ export default function TrustCV() {
     setBusy(true);
     setError(null);
     try {
-      const result = await VerificationAPI.phase3(modelFile);
+      const result = await VerificationAPI.phase3(modelFile, signatureFile, publicKeyFile);
       setPhase3Result(result);
       setDatasetRequirements(result.dataset_requirements || inferDatasetRequirements(result));
     } catch (e) {
@@ -1445,7 +1450,32 @@ export default function TrustCV() {
           subtitle="Trusted CV profiles the model architecture, framework, and introspection access level, and assigns tailored security assurance engines."
         />
         <div className="tc-upload-stack">
-          <UploadField label="AI Model" sub=".pt / .pth / .onnx / supported model file" accept=".pt,.pth,.onnx,.bin" value={modelFile} onFile={setModelFile}/>
+          <UploadField label="AI Model (Required)" sub=".pt / .pth / .onnx / supported model file" accept=".pt,.pth,.onnx,.bin" value={modelFile} onFile={setModelFile}/>
+          <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px", marginTop: "12px"}}>
+            <UploadField
+              label="Digital Signature (.sig / .json)"
+              sub="Optional: Detached cryptographic signature"
+              accept=".sig,.json"
+              value={signatureFile}
+              onFile={setSignatureFile}
+            />
+            <UploadField
+              label="Vendor Public Key (.pem / .pub)"
+              sub="Optional: Ed25519 verification public key"
+              accept=".pem,.pub,.key"
+              value={publicKeyFile}
+              onFile={setPublicKeyFile}
+            />
+          </div>
+          <div style={{fontSize: "11px", color: "var(--muted)", marginTop: "6px", lineHeight: 1.4}}>
+            {publicKeyFile && signatureFile ? (
+              <span style={{color: "var(--pass, #3DDC84)"}}>✓ Both digital signature and vendor public key provided. Provenance will be verified against supplied key (Quarantined if mismatch).</span>
+            ) : publicKeyFile || signatureFile ? (
+              <span style={{color: "var(--warn, #FBBF24)"}}>⚠ Incomplete cryptographic pair: supply both public key and signature for mathematical verification, or proceed without them for manual review.</span>
+            ) : (
+              <span>ℹ No public key or signature uploaded. Model will be placed in <b>REVIEW</b> mode pending manual provenance clearance.</span>
+            )}
+          </div>
         </div>
 
         <div className="tc-section-label" style={{marginTop: 18, marginBottom: 8}}>INTROSPECTION ACCESS LEVEL</div>
@@ -1795,30 +1825,32 @@ export default function TrustCV() {
           <div className="tc-meta"><span>{inputName}</span><span>{phase3Result.model_type || "Model"}</span></div>
           <div className="tc-summary">
             <div><span>SHA-256</span><b style={{fontSize: "0.78rem", wordBreak: "break-all"}}>{phase3Result.sha256 || "—"}</b></div>
-            <div><span>Ledger Provenance</span><b style={{color: phase3Result.ledger_status === "VERIFIED" ? "var(--pass, #3DDC84)" : phase3Result.ledger_status === "SUBSTITUTED" ? "var(--risk, #FF6B6B)" : "var(--warn, #FBBF24)"}}>{phase3Result.ledger_status === "VERIFIED" ? "VERIFIED BASELINE" : phase3Result.ledger_status === "SUBSTITUTED" ? "SUBSTITUTION DETECTED" : "NEW ARTIFACT (PENDING AUDIT)"}</b></div>
-            <div><span>Phase 3 Decision</span><b style={{color: phase3Passed ? (phase3Review ? "var(--warn, #FBBF24)" : "var(--pass, #3DDC84)") : "var(--risk, #FF6B6B)"}}>{phase3Passed ? (phase3Review ? "REVIEW" : "PASS") : "STOP"}</b></div>
+            <div><span>Ledger Provenance</span><b style={{color: phase3Result.ledger_status === "VERIFIED" ? "var(--pass, #3DDC84)" : (phase3Result.ledger_status === "SUBSTITUTED" || phase3Result.ledger_status === "QUARANTINED" || phase3Result.disposition === "quarantine") ? "var(--risk, #FF6B6B)" : "var(--warn, #FBBF24)"}}>{phase3Result.ledger_status === "VERIFIED" ? "VERIFIED BASELINE" : (phase3Result.ledger_status === "QUARANTINED" || phase3Result.disposition === "quarantine") ? "QUARANTINED (SIGNATURE MISMATCH)" : phase3Result.ledger_status === "SUBSTITUTED" ? "SUBSTITUTION DETECTED" : "NEW ARTIFACT (PENDING AUDIT)"}</b></div>
+            <div><span>Phase 3 Decision</span><b style={{color: (phase3Result.disposition === "quarantine" || !phase3Passed) ? "var(--risk, #FF6B6B)" : phase3Review ? "var(--warn, #FBBF24)" : "var(--pass, #3DDC84)"}}>{phase3Result.disposition === "quarantine" ? "QUARANTINE" : phase3Passed ? (phase3Review ? "REVIEW" : "PASS") : "STOP"}</b></div>
           </div>
           <HashCheckpoint checkpoint={phase3Result.hash_checkpoint}/>
           <div className="tc-section-label">IDENTITY CHECKS · CLICK TO INSPECT</div>
           <div className="tc-checklist">{phase3Checks.length ? phase3Checks.map((c,i)=><CheckCard key={c.id || i} label={c.label || `Check ${i+1}`} state={checkState(c)} detail={c.detail} evidence={c.evidence || c.data || {}}/>) : <CheckCard label="MIRAD verification" state={phase3Passed ? "pass":"fail"} detail={phase3Result.detail || "Phase 3 response received."} evidence={phase3Result.mirad || {}}/>}</div>
           <Banner
-            status={phase3Result?.ledger_status === "SUBSTITUTED" ? "risk" : phase3Passed ? (phase3Review ? "warn" : "trusted") : "risk"}
+            status={phase3Result?.disposition === "quarantine" || phase3Result?.ledger_status === "SUBSTITUTED" || phase3Result?.ledger_status === "QUARANTINED" ? "risk" : phase3Passed ? (phase3Review ? "warn" : "trusted") : "risk"}
             text={
-              phase3Result?.ledger_status === "SUBSTITUTED"
-                ? "CRITICAL ALERT: Model hash mismatch against certified baseline! The uploaded weights differ from the approved version in the ledger. Flagged for REVIEW / QUARANTINE."
-                : phase3Result?.ledger_status === "NEW_UNREGISTERED"
-                  ? "New unverified model artifact detected. Flagged for REVIEW. If it passes all subsequent integrity and backdoor checks, it will be automatically enrolled into the trusted ledger."
-                  : phase3Passed
-                    ? (phase3Review
-                        ? "Model identity checks completed. Model is under REVIEW. Proceed to Phase 4 for backdoor trigger inversion."
-                        : "Model verified against certified baseline in the trusted ledger. Proceed to Phase 4 for model integrity analysis.")
-                    : "The required Phase 3 identity checks did not pass. The workflow stops here."
+              phase3Result?.disposition === "quarantine" || phase3Result?.ledger_status === "QUARANTINED"
+                ? "CRITICAL SECURITY ALERT: Digital signature verification failed! Model weights do not match the supplied vendor public key. Model is QUARANTINED."
+                : phase3Result?.ledger_status === "SUBSTITUTED"
+                  ? "CRITICAL ALERT: Model hash mismatch against certified baseline! The uploaded weights differ from the approved version in the ledger. Flagged for REVIEW / QUARANTINE."
+                  : phase3Result?.ledger_status === "NEW_UNREGISTERED"
+                    ? "New unverified model artifact detected. Flagged for REVIEW. If it passes all subsequent integrity and backdoor checks, it will be automatically enrolled into the trusted ledger."
+                    : phase3Passed
+                      ? (phase3Review
+                          ? "Model identity checks completed in REVIEW mode. No verification key provided; proceed to Phase 4 for backdoor trigger inversion."
+                          : "Model cryptographically verified with vendor public key. Proceed to Phase 4 for model integrity analysis.")
+                      : "The required Phase 3 identity checks did not pass. The workflow stops here."
             }
           />
           <div className="tc-report-actions">
             <DownloadButton filename={`TrustCV_Phase3_${inputName.replace(/[^a-z0-9._-]/gi,"_")}.pdf`} payload={phase3Report} label="Download Phase 3 PDF" pdf/>
             <button type="button" className="tc-ghost-btn" onClick={() => setStep(3)}><ArrowLeft size={15}/> Back to Phase 2</button>
-            {phase3Passed && <button type="button" className="tc-primary-btn" onClick={runPhase4}>Continue to Phase 4: Integrity <ArrowRight size={16}/></button>}
+            {phase3Passed && phase3Result?.disposition !== "quarantine" && <button type="button" className="tc-primary-btn" onClick={runPhase4}>Continue to Phase 4: Integrity <ArrowRight size={16}/></button>}
           </div>
           <Footer reset={reset}/>
         </>}
