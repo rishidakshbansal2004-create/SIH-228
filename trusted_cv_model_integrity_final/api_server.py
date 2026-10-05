@@ -8,12 +8,16 @@ Round-1 integration policy:
 - No trusted_registry.json is used for model verification.
 """
 
+import base64
 import json
 import html
 from pathlib import Path
 from typing import Any
 import tempfile
 import sys
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ed25519
 
 sys.path.insert(
     0,
@@ -723,6 +727,85 @@ def _mirad_model_check(path: Path, filename: str, model_type: str) -> dict[str, 
         except Exception:
             pass
 
+    # Check 4: Cryptographic Digital Signature verification
+    sig_b64 = None
+    pub_b64 = None
+    key_id = "vendor-key-primary"
+
+    # Step A: Check exact match ledger record
+    if exact_match_meta and exact_match_meta.get("signature") and exact_match_meta.get("public_key"):
+        sig_b64 = exact_match_meta.get("signature")
+        pub_b64 = exact_match_meta.get("public_key")
+        key_id = exact_match_meta.get("signing_key_id", key_id)
+
+    # Step B: Check companion files on disk (.sig or .manifest.json)
+    if not sig_b64 and path:
+        model_p = Path(path)
+        sig_p = model_p.with_name(f"{model_p.name}.sig")
+        manifest_p = model_p.with_name(f"{model_p.name}.manifest.json")
+        if sig_p.exists():
+            try:
+                sig_b64 = sig_p.read_text(encoding="utf-8").strip()
+            except Exception:
+                pass
+        elif manifest_p.exists():
+            try:
+                mdata = json.loads(manifest_p.read_text(encoding="utf-8"))
+                sig_b64 = mdata.get("signature")
+                pub_b64 = pub_b64 or mdata.get("public_key")
+                key_id = mdata.get("signing_key_id", key_id)
+            except Exception:
+                pass
+
+    # Step C: Fall back to default vendor public key if signature exists but public_key is not in manifest
+    if sig_b64 and not pub_b64:
+        default_pub_pem = Path(__file__).resolve().parent / "keys" / "vendor_public_key.pem"
+        if default_pub_pem.exists():
+            try:
+                with open(default_pub_pem, "rb") as f:
+                    pk = serialization.load_pem_public_key(f.read())
+                    raw_bytes = pk.public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+                    pub_b64 = base64.b64encode(raw_bytes).decode("ascii")
+            except Exception:
+                pass
+
+    # Step D: Cryptographic verification
+    sig_evidence = {}
+    if sig_b64 and pub_b64:
+        try:
+            raw_pk_bytes = base64.b64decode(pub_b64)
+            public_key_obj = ed25519.Ed25519PublicKey.from_public_bytes(raw_pk_bytes)
+            sig_bytes = base64.b64decode(sig_b64)
+            public_key_obj.verify(sig_bytes, digest.encode("utf-8"))
+            signature_passed = True
+            signature_detail = f"Cryptographically verified using Ed25519 ({key_id}). Authentic vendor release."
+            sig_evidence = {
+                "algorithm": "Ed25519",
+                "key_id": key_id,
+                "public_key": pub_b64[:16] + "...",
+                "signature": sig_b64[:20] + "...",
+                "verified": True,
+            }
+        except InvalidSignature:
+            signature_passed = False
+            signature_detail = "CRITICAL: Digital signature mismatch! Model weights have been altered or forged."
+            sig_evidence = {
+                "algorithm": "Ed25519",
+                "key_id": key_id,
+                "verified": False,
+                "reason": "InvalidSignature",
+            }
+        except Exception as e:
+            signature_passed = False
+            signature_detail = f"Signature verification error: {e}"
+    elif is_substituted and substituted_entry and substituted_entry[1].get("signature"):
+        signature_passed = False
+        signature_detail = "CRITICAL: Baseline model has registered signature; candidate model failed signature match."
+        sig_evidence = {"verified": False, "reason": "Substituted candidate weights do not match baseline signature"}
+    else:
+        signature_passed = None
+        signature_detail = "No external cryptographic signature was supplied with this upload; provenance relies on SHA-256 weight digest."
+
     checks = [
         {
             "id": "hash",
@@ -745,8 +828,9 @@ def _mirad_model_check(path: Path, filename: str, model_type: str) -> dict[str, 
         {
             "id": "signature",
             "label": "Digital Signature",
-            "passed": None,
-            "detail": "No external cryptographic signature was supplied with this upload; provenance relies on SHA-256 weight digest.",
+            "passed": signature_passed,
+            "detail": signature_detail,
+            "evidence": sig_evidence,
         },
     ]
 

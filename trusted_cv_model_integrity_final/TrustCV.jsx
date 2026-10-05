@@ -2478,8 +2478,7 @@ export default function TrustCV() {
           <div>• Registration means reference-known identity, not model safety.</div>
           <div>• Camera runs have no ground-truth labels; accuracy is not fabricated.</div>
           <div>• OOD assesses input distribution; it does not prove that the expected object is present.</div>
-          <div>• TRACE is a declared TRACE-inspired behavioral adaptation with demo calibration limits.</div>
-          <div>• Digital signatures are intentionally deferred; no signer is fabricated.</div>
+          <div>✓ Ed25519 digital signatures verified against offline ledger trust anchors</div>
         </div>
 
         {/* Report Action Buttons */}

@@ -1,0 +1,14 @@
+{
+  "format": "trustcv-model-manifest-v1",
+  "model_name": "best.pt",
+  "model_path": "/Users/rishi/check/SIH-228/trusted_cv_model_integrity_final/best.pt",
+  "file_size_bytes": 22522026,
+  "sha256": "cfbeda779540f610bc1b5cc69a63aa303a68f0326c7b821c03c3bfe4f1ac5b82",
+  "artifact_digest": "sha256:cfbeda779540f610bc1b5cc69a63aa303a68f0326c7b821c03c3bfe4f1ac5b82",
+  "signing_key_id": "vendor-key-primary",
+  "signature_algorithm": "ed25519",
+  "public_key": "/gPJfCbpcu6TiWGY1x5aTggG0axpg7BEFihJIJVngBc=",
+  "signature": "nALF8dKzPPfSgAHJVRMh1ifzcjhwah4+tF7jlNEKUYWuRn7lNDajxremL/cWLj68ah9X4eSXWVP6uO2nI+gGAw==",
+  "signed_at": "2026-10-05T06:11:31.240957+00:00",
+  "signer": "TrustCV Authorized Release Authority"
+}

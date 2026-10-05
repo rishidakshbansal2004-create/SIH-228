@@ -12,7 +12,12 @@
       "disposition": "APPROVED",
       "provenance": "Evaluated clean across Phase 1-4 integrity checkpoints; automatically enrolled into trusted ledger.",
       "b3d_clean": true,
-      "signed": true
+      "signed": true,
+      "signature": "nALF8dKzPPfSgAHJVRMh1ifzcjhwah4+tF7jlNEKUYWuRn7lNDajxremL/cWLj68ah9X4eSXWVP6uO2nI+gGAw==",
+      "public_key": "/gPJfCbpcu6TiWGY1x5aTggG0axpg7BEFihJIJVngBc=",
+      "signing_key_id": "vendor-key-primary",
+      "signature_algorithm": "ed25519",
+      "signed_at": "2026-10-05T06:11:31.240957+00:00"
     }
   },
   "datasets": {}
