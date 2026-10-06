@@ -1,0 +1,48 @@
+# Python & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Environments
+.venv/
+venv/
+env/
+Lib/
+etc/
+share/
+scripts/*.exe
+Scripts/*.exe
+!scripts/
+!scripts/*.py
+
+# Testing & Caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Scratch & Dev residue
+scratch/
+.FullName
+
+# Databases & Runtime State
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets & Local Credentials
+.env
+.env.*
+!.env.example
+TrustCV_access_config.json
+*.pem
+*.key
+*.pass
+
+# Runtime artifacts & logs
+artifacts/
+*.log
+
+# Standalone/prototype duplicate
+mirad_security/
+

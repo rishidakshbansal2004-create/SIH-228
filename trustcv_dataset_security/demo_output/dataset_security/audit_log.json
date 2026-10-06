@@ -1,0 +1,848 @@
+[
+  {
+    "audit_id": "dataset-audit-000001",
+    "current_hash": "5f40d6208def3857613346cd6e443f4c189b68a0b9bc2e26b9fb3530cc609731",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:299fa56c7dc989e68bab03db9ec1a24177a434efee0793b4795a3e7ad37e02eb",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-3addeaa26fbf5a56c1357aff",
+      "evidence_digest": "sha256:a50efc8b8ec252b1aed693f3321cc45d82256cf02f87b4e634065392f21d78c4",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": null,
+    "sequence": 1,
+    "timestamp": "2026-09-17T21:40:23Z"
+  },
+  {
+    "audit_id": "dataset-audit-000002",
+    "current_hash": "57b6505a344e20e7fe42668159a8a3ccb2bde51281fe30c433d5474a085f544d",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:78cede575625d6c59760e658689579f907448a47649383bdd5debd5cea06419c",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-dc080dfeaddee70053f20e13",
+      "evidence_digest": "sha256:7ec155fdeb4746fed1acd97386fdef441a57efff910e37f04fd0b867bf7050b3",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "5f40d6208def3857613346cd6e443f4c189b68a0b9bc2e26b9fb3530cc609731",
+    "sequence": 2,
+    "timestamp": "2026-09-17T21:43:49Z"
+  },
+  {
+    "audit_id": "dataset-audit-000003",
+    "current_hash": "86a3600d400dd92ed64f4b3e509bb3221f44802c8f2cf556c624966cf4ca9718",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:f0b214d4e9189fe6881b50beda5dd21ebe78a4579f1104edd693350a142425ca",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-8ae847fc81f7fa0863c7ec9f",
+      "evidence_digest": "sha256:b354615bc24b7b6c303787e21fe6e6be6f401e73d63996ba08caff789c225024",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "57b6505a344e20e7fe42668159a8a3ccb2bde51281fe30c433d5474a085f544d",
+    "sequence": 3,
+    "timestamp": "2026-09-17T23:27:47Z"
+  },
+  {
+    "audit_id": "dataset-audit-000004",
+    "current_hash": "7f73828b7996f9d10cab91a0de4c376b0378e30e56c6b82958e3987d2fcc33d3",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:c0eccc5eb3895560e555bda9df785c430100e68eb7d01174f9ede828a7552719",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-9c6923b70b5d83a60398f134",
+      "evidence_digest": "sha256:5ff21d4fad1ac45bcf59c0f8633f71d51d63ef702cbed611e47bf24ea5b290a0",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "86a3600d400dd92ed64f4b3e509bb3221f44802c8f2cf556c624966cf4ca9718",
+    "sequence": 4,
+    "timestamp": "2026-09-18T00:03:26Z"
+  },
+  {
+    "audit_id": "dataset-audit-000005",
+    "current_hash": "c163c079f5c3635fe5bbe250e986d0b617fc2944a26d1f29242a62703b014f1e",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:26f37921904e58214b37776434f22f77eff41be2c3c7265a685284a1f97a32cd",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-8505938ade92942d05fea129",
+      "evidence_digest": "sha256:755e0bcf4024cc073ed981e9fb1507dcb33f48995803f554229cdf6b57aecd3d",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "7f73828b7996f9d10cab91a0de4c376b0378e30e56c6b82958e3987d2fcc33d3",
+    "sequence": 5,
+    "timestamp": "2026-09-20T18:45:14Z"
+  },
+  {
+    "audit_id": "dataset-audit-000006",
+    "current_hash": "1d430618b5cde5d2028a3bd85f57009d317b68e293bbdd1a2013d7e1e6be26c7",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:b01a6934829baf94d393ba917178db5a23921bb113f7f39a05be85b7b26e3690",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-89d745d01e537f7c28d5fda5",
+      "evidence_digest": "sha256:6fde79f608668a2b7943468116ec3d5ca2ca85fa3b5f653ddf93ff0f13460f79",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "c163c079f5c3635fe5bbe250e986d0b617fc2944a26d1f29242a62703b014f1e",
+    "sequence": 6,
+    "timestamp": "2026-09-21T09:40:25Z"
+  },
+  {
+    "audit_id": "dataset-audit-000007",
+    "current_hash": "2c5041650cb458303824c116d0091095f3b3947d0d8d6e0516c1818d16f1c817",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:34208196c420b6cfaac4e1809354b0573c1968dbcb58b48282778c233fabd85b",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-c31e65058a658284b0b6c186",
+      "evidence_digest": "sha256:2127a2b6e0ec8bb8727a6b31db79bb816a26d57053164cf0733b68ba2d6d2b67",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "1d430618b5cde5d2028a3bd85f57009d317b68e293bbdd1a2013d7e1e6be26c7",
+    "sequence": 7,
+    "timestamp": "2026-09-21T09:40:25Z"
+  },
+  {
+    "audit_id": "dataset-audit-000008",
+    "current_hash": "b8856c9d7cf5a95cfbce3f5c5c0f20ef1fa29c71b01008e51547d5d3a690cb5d",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:6c8122decee6fd61c02726cc1c855ba5ad42e6ff8cf1f4367786c309abb4e632",
+      "dataset_name": "500 (1).png",
+      "dataset_sha256": "2da1ab0e527c446e17df65417eba92d08cf9e73aa524b138f1965b191b7feb41",
+      "event_id": "dataset-event-ab8b1f55089c2a350c44c0e4",
+      "evidence_digest": "sha256:319452c4cc1d59a4367493a431515454ee87d993cc241ff148140980a76cb415",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "2c5041650cb458303824c116d0091095f3b3947d0d8d6e0516c1818d16f1c817",
+    "sequence": 8,
+    "timestamp": "2026-09-25T18:32:07Z"
+  },
+  {
+    "audit_id": "dataset-audit-000009",
+    "current_hash": "d52924274dfa1d61e54923e07827a49250c88c89887b731261fbc6310f05d6eb",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:d01b7238e012643094ac6476146f6fbd717376614c9ca8f2ccaf08235170efd7",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-0484aabe35028ddd34001834",
+      "evidence_digest": "sha256:844ea0eacf4dc951264c082e883d010f7cae94859a7d891d674c84579a2d0924",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "b8856c9d7cf5a95cfbce3f5c5c0f20ef1fa29c71b01008e51547d5d3a690cb5d",
+    "sequence": 9,
+    "timestamp": "2026-09-25T18:38:42Z"
+  },
+  {
+    "audit_id": "dataset-audit-000010",
+    "current_hash": "21ecd4da8af29367b13217633e29adf06070ff58e106d1dde3a06b55d240d413",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:4c263b85b87714a329d286353a10fd44a926f2cace054b3c2bdf9773f7278da0",
+      "dataset_name": "IMG-20260108-WA0011.jpg",
+      "dataset_sha256": "2dd07fb94770c39704d1c539895c73db0c9d0e7474f7b423fba6f5173d6e12b4",
+      "event_id": "dataset-event-7f0530602fd87ae4cb7f8419",
+      "evidence_digest": "sha256:79fe6e8a4e4016ee1b0bcf39520aac99aa530d88e0af844a7cea686c7c977c45",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "d52924274dfa1d61e54923e07827a49250c88c89887b731261fbc6310f05d6eb",
+    "sequence": 10,
+    "timestamp": "2026-09-25T19:08:21Z"
+  },
+  {
+    "audit_id": "dataset-audit-000011",
+    "current_hash": "80ea47e1f80ecce14f1312041dae42c1c1dce905a36863c85c20542913ef9977",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:1cc126311593b2e36e783f2246aba88b70a481a1748b8d28f711d77dfcb9f28f",
+      "dataset_name": "IMG-20260108-WA0011.jpg",
+      "dataset_sha256": "2dd07fb94770c39704d1c539895c73db0c9d0e7474f7b423fba6f5173d6e12b4",
+      "event_id": "dataset-event-f459af8ed0d0fb038c9ce9b4",
+      "evidence_digest": "sha256:fedf52ab29c449b0e8d0d4c1f760621642146664b70b1a86e703e4d38b8a9578",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "21ecd4da8af29367b13217633e29adf06070ff58e106d1dde3a06b55d240d413",
+    "sequence": 11,
+    "timestamp": "2026-09-25T19:08:21Z"
+  },
+  {
+    "audit_id": "dataset-audit-000012",
+    "current_hash": "d3ce9c019394c2162dee131340835f847d8c5cc4438876ebc2b31372db90b231",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:9fa7a01fc49eaf4e337f7b9ab67f38a5c937cc5328b3aac8a6667e8cd4bc957d",
+      "dataset_name": "300 (1).png",
+      "dataset_sha256": "6a3572a440cc9d34cfb1f8dddac4545465e2c3cb46a2078accd44d5d5aa7a40e",
+      "event_id": "dataset-event-1c898a799c15dc6e7a57b50c",
+      "evidence_digest": "sha256:07dc66ab4e0f1e7e17b418d9da8ea62600aa5877cc3801381948f54afddffd61",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "80ea47e1f80ecce14f1312041dae42c1c1dce905a36863c85c20542913ef9977",
+    "sequence": 12,
+    "timestamp": "2026-09-25T22:29:45Z"
+  },
+  {
+    "audit_id": "dataset-audit-000013",
+    "current_hash": "7536315a2b9cce35cfda6405d3ec83b2be5cf30d7671cabe2c200d6931f33665",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:6eca9de37927f1d5d55fb5fef5c4e788d56d210204b075b4cac28155aac08045",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-7c1dff1a2374f09170df8421",
+      "evidence_digest": "sha256:5fe0e67eb9dafd0bdb9dc82d7418f513fadd3be540a6a83649d970bea49b8f95",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "d3ce9c019394c2162dee131340835f847d8c5cc4438876ebc2b31372db90b231",
+    "sequence": 13,
+    "timestamp": "2026-09-25T22:36:30Z"
+  },
+  {
+    "audit_id": "dataset-audit-000014",
+    "current_hash": "ea10ce2b2fbfe077b0068ec41e3a382aea54047b3d2f80fea4f9c2bb6f26be9b",
+    "event_type": "test",
+    "payload": {
+      "event_id": "dataset-event-9e2964decdac4cdc9d62a368"
+    },
+    "previous_hash": "7536315a2b9cce35cfda6405d3ec83b2be5cf30d7671cabe2c200d6931f33665",
+    "sequence": 14,
+    "timestamp": "2026-09-29T14:03:45Z"
+  },
+  {
+    "audit_id": "dataset-audit-000015",
+    "current_hash": "f5f633159d87544260bf6817037c200db980747f0240b5932e903067832c8082",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:a8887478147e37b03005da6ca1d21d506585b12344db9a114417e9c4418c28d5",
+      "dataset_name": "test_sample.png",
+      "dataset_sha256": "ebeecfce9e8ae804c5d288f2eb30a8bc0b7ff516aa547dfecca56b644b8e8c06",
+      "event_id": "dataset-event-23af1b6559c19e4e7c657eeb",
+      "evidence_digest": "sha256:e40e69d3e14529124230ddbeb741aa7b475cbd3e96635ab668cbd788269e4d74",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "ea10ce2b2fbfe077b0068ec41e3a382aea54047b3d2f80fea4f9c2bb6f26be9b",
+    "sequence": 15,
+    "timestamp": "2026-09-29T14:40:54Z"
+  },
+  {
+    "audit_id": "dataset-audit-000016",
+    "current_hash": "1a0401e9adbdecbd0ca97b3e570ed9cb22a361ebadd39e7e78613fd9591cdada",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:dba45f1570f572889528016970053503fd57ca0642e6bdde14fd30765243b3f7",
+      "dataset_name": "test_sample.png",
+      "dataset_sha256": "ebeecfce9e8ae804c5d288f2eb30a8bc0b7ff516aa547dfecca56b644b8e8c06",
+      "event_id": "dataset-event-0d2699710e7a0732bd7bd944",
+      "evidence_digest": "sha256:ee9ad638969936bf8fe1f5f468411888d401951851608a5702951649204a37d4",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "f5f633159d87544260bf6817037c200db980747f0240b5932e903067832c8082",
+    "sequence": 16,
+    "timestamp": "2026-09-29T14:42:35Z"
+  },
+  {
+    "audit_id": "dataset-audit-000017",
+    "current_hash": "2ffb3081fb9da671e1eff6dfca7974970055320c740d96e33ff36680829ff25c",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:27ab1b929300ff4bfa3e80c2c3cb907bf2e56aa85ebbda4ee16198a5fb928626",
+      "dataset_name": "test_sample.png",
+      "dataset_sha256": "ebeecfce9e8ae804c5d288f2eb30a8bc0b7ff516aa547dfecca56b644b8e8c06",
+      "event_id": "dataset-event-772f36580fc632dd8602709e",
+      "evidence_digest": "sha256:e5c26103fd5c0155e2f876476bfe37fb5e117e5070e43304f9b93f2d290ef483",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "1a0401e9adbdecbd0ca97b3e570ed9cb22a361ebadd39e7e78613fd9591cdada",
+    "sequence": 17,
+    "timestamp": "2026-09-29T16:22:04Z"
+  },
+  {
+    "audit_id": "dataset-audit-000018",
+    "current_hash": "6b107c1b87b2c9ec14a59ac0b204339cdf7944f708b098fea686f0ea755700eb",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:13e5abdafe03e49808643fff2387071f7473e6704b96e82da80f9ae3e25d181d",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-beb62ceb8ec87ffad682a4b6",
+      "evidence_digest": "sha256:9a57fce6088e003d29c057c0da2950768f7d3dcace6ef958cdc9e33e75536dc7",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "2ffb3081fb9da671e1eff6dfca7974970055320c740d96e33ff36680829ff25c",
+    "sequence": 18,
+    "timestamp": "2026-09-29T16:37:05Z"
+  },
+  {
+    "audit_id": "dataset-audit-000019",
+    "current_hash": "d6c66967506feac6f41a945b82c40bbff53fc07a7f12e9725f2b912c32dca620",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:a2be7482fa2b6408ca73c9bfb0ae4222ddc5fe1869928d86e3cde8d9c21c0f12",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-6f35b91cadd449a569c34ce7",
+      "evidence_digest": "sha256:17ff8b7b420b4267dc1221ae3d89b3012463990b8d84a98ac9d722a877af4df8",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "6b107c1b87b2c9ec14a59ac0b204339cdf7944f708b098fea686f0ea755700eb",
+    "sequence": 19,
+    "timestamp": "2026-09-29T16:37:47Z"
+  },
+  {
+    "audit_id": "dataset-audit-000020",
+    "current_hash": "a851920e2392114f37df1134d112b07ae83ba3d38132f91ab6df3662500e5dac",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:7aa30d247f3e45ee71706baf55fd68f5bb1b2f4214dbf496f0ca4bb5ed05b40a",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-ae192a0aa7ed84b434feee90",
+      "evidence_digest": "sha256:c9993cb8c688caf5caef4c122478bb82abe47a30130817e9b7f3c2b85147b315",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "d6c66967506feac6f41a945b82c40bbff53fc07a7f12e9725f2b912c32dca620",
+    "sequence": 20,
+    "timestamp": "2026-09-29T16:38:18Z"
+  },
+  {
+    "audit_id": "dataset-audit-000021",
+    "current_hash": "4cddf65d414764fd066c94ebc640a0f7bd563d7a64f8310fee94d1f2476c5c7c",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:95bcee875028acbe246b7a1aae43c3788e7c373826b4d27564dabfc1f03e9c7f",
+      "dataset_name": "New Doc 04-05-2026 01.44_1.jpg",
+      "dataset_sha256": "07a254447bc04a10bb8f2f72da17f2d0554100a0739069018c5253b26bd26967",
+      "event_id": "dataset-event-66bb15b4b88d9338f2017610",
+      "evidence_digest": "sha256:6b7b7de070fd8ebe59406da357e48d1a6de6e43c00e5656cc72eb14e81449611",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "a851920e2392114f37df1134d112b07ae83ba3d38132f91ab6df3662500e5dac",
+    "sequence": 21,
+    "timestamp": "2026-09-29T16:55:30Z"
+  },
+  {
+    "audit_id": "dataset-audit-000022",
+    "current_hash": "b8b27d6a8532ad4a78146c3468515d718b8050e78b9cd5bc8a7a81ec2a1b5c41",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:14d0e7bc44e3bef000a73dbecfd9d8b2e0e5fe3044188b5b9dfbde72dd7b984b",
+      "dataset_name": "1000062504.jpg",
+      "dataset_sha256": "9fbdd5e114031611164cabce8df66c4fc3cdf852f5203300ca4714bedbd9b256",
+      "event_id": "dataset-event-6ceb5dde6965d79285b17f93",
+      "evidence_digest": "sha256:bd25726316bb5c3854187e78854b0cec4087c645adf4dc9065da5a88818f1153",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "4cddf65d414764fd066c94ebc640a0f7bd563d7a64f8310fee94d1f2476c5c7c",
+    "sequence": 22,
+    "timestamp": "2026-09-30T04:15:45Z"
+  },
+  {
+    "audit_id": "dataset-audit-000023",
+    "current_hash": "83f932bfed4e0d5ab8bbaad3967ce8f0909ff4c3bf1d54b0fd99c217c035ccf7",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:eaec7a63b65074e8f827f7afc1086b014023b0b4ecc8091a891150d81ad1d42d",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-7b38e4cbfe535ada31ce5682",
+      "evidence_digest": "sha256:b1be8bd10a1d71c73dc627ed9fb1eab8beb5587b079da0b35e35c837f943f8be",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "b8b27d6a8532ad4a78146c3468515d718b8050e78b9cd5bc8a7a81ec2a1b5c41",
+    "sequence": 23,
+    "timestamp": "2026-09-30T04:23:29Z"
+  },
+  {
+    "audit_id": "dataset-audit-000024",
+    "current_hash": "6020580a38be7d6d33ede5d55d76971e2730188f53c7fc5f3472aa7084a6149c",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:18438da7ed61e2ab35d71a962a235aa616d2eb6714f7d978e2c8a66b69d40946",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-8eb956005cf38530e8318aa9",
+      "evidence_digest": "sha256:6694d4e6499c2d0f6988c36a98cc0e9aedc93c8d647a5ed5ae4e229df321551e",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "83f932bfed4e0d5ab8bbaad3967ce8f0909ff4c3bf1d54b0fd99c217c035ccf7",
+    "sequence": 24,
+    "timestamp": "2026-09-30T04:38:04Z"
+  },
+  {
+    "audit_id": "dataset-audit-000025",
+    "current_hash": "80299fd890b61550a5bab83bcddc0f173340039faf38e4786906fcb37254f6cb",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:6a951f95a01b8fe9ee9b417cf290208c9d6cc90618b47185208b96face9d239e",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-9d165bf3bf868265acea17cf",
+      "evidence_digest": "sha256:9291beaa60c24077fbaa3d05db186ee0ebcf7c76b802ff476f742225ad124bdb",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "6020580a38be7d6d33ede5d55d76971e2730188f53c7fc5f3472aa7084a6149c",
+    "sequence": 25,
+    "timestamp": "2026-09-30T04:40:03Z"
+  },
+  {
+    "audit_id": "dataset-audit-000026",
+    "current_hash": "fbc59eca6f77bfab2069aead56ae1b3c0abcfb1c26c98c2d0d6e64fea13d8af1",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:fb3c8e6ed5a6ae7d757531737acec6458ca3bf446c9cd936317ee9a883b141b3",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-7e105d9fc8b9e505a1f00f37",
+      "evidence_digest": "sha256:62134875fee9528bca81fd29c19f148fbe9910a443806092f8ebcf52a5203917",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "80299fd890b61550a5bab83bcddc0f173340039faf38e4786906fcb37254f6cb",
+    "sequence": 26,
+    "timestamp": "2026-09-30T04:40:37Z"
+  },
+  {
+    "audit_id": "dataset-audit-000027",
+    "current_hash": "51322faca9c3300d4f2d3e10a0832df110d329942bdd9181e59c213fb0f9adbe",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:fb3c8e6ed5a6ae7d757531737acec6458ca3bf446c9cd936317ee9a883b141b3",
+      "dataset_name": "images.zip",
+      "dataset_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+      "event_id": "dataset-event-f385161f1b0274577f361689",
+      "evidence_digest": "sha256:62134875fee9528bca81fd29c19f148fbe9910a443806092f8ebcf52a5203917",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "fbc59eca6f77bfab2069aead56ae1b3c0abcfb1c26c98c2d0d6e64fea13d8af1",
+    "sequence": 27,
+    "timestamp": "2026-09-30T04:40:44Z"
+  },
+  {
+    "audit_id": "dataset-audit-000028",
+    "current_hash": "976e6f1d8019eebf2742d3d1ec09ae838a06ac2a29a289cbc5c6f4d409028b92",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:13ac9c683283ea32cb2e6aba3ce384428bd8f515827e1f5a1c16a1c5fdf585e3",
+      "dataset_name": "ChatGPT Image Sep 13, 2026, 11_10_44 PM.png",
+      "dataset_sha256": "48f5bd21b0d053c6ec30902a55ae7d0c142cf3a30b671672a1a11d1f7eb6f264",
+      "event_id": "dataset-event-3d04d76b1ce04541200b7126",
+      "evidence_digest": "sha256:18880868df5b6bd78fac961e9cfea4cb23ac259fad3bf3435ec394ad39cb8b14",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "51322faca9c3300d4f2d3e10a0832df110d329942bdd9181e59c213fb0f9adbe",
+    "sequence": 28,
+    "timestamp": "2026-09-30T04:49:56Z"
+  },
+  {
+    "audit_id": "dataset-audit-000029",
+    "current_hash": "03d0a9ba9ac77d0c17533473ba23c07c48d6ace14851c5f6eca165760955d0d5",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:926741cfa86e4e4cad1a9d1ac705fecd78bfd68e2a9e22e40d87ba9fdca7a821",
+      "dataset_name": "ChatGPT Image Sep 13, 2026, 11_10_44 PM.png",
+      "dataset_sha256": "48f5bd21b0d053c6ec30902a55ae7d0c142cf3a30b671672a1a11d1f7eb6f264",
+      "event_id": "dataset-event-3d85536a579102999a3da30f",
+      "evidence_digest": "sha256:c87b1dcc001088eeae87c7f272ba18bc1c861d0a0225ace627c6ce640b0678a8",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "976e6f1d8019eebf2742d3d1ec09ae838a06ac2a29a289cbc5c6f4d409028b92",
+    "sequence": 29,
+    "timestamp": "2026-09-30T04:51:01Z"
+  },
+  {
+    "audit_id": "dataset-audit-000030",
+    "current_hash": "9af62bb161e5cbef39885a0018940f3f8a08a43f7ee5a89edee456136f618883",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:ba75a7c589a47f33dba70585b9a962a2c3386a5f6fd203b8c7469c10efe71e6d",
+      "dataset_name": "ChatGPT Image Sep 13, 2026, 11_10_44 PM.png",
+      "dataset_sha256": "48f5bd21b0d053c6ec30902a55ae7d0c142cf3a30b671672a1a11d1f7eb6f264",
+      "event_id": "dataset-event-7ad285ef712335e759797b13",
+      "evidence_digest": "sha256:9aea1fa5929de9e0fcfdae10e6dbfd5a3e5b907ca77e51d92a6988c147931f2c",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "03d0a9ba9ac77d0c17533473ba23c07c48d6ace14851c5f6eca165760955d0d5",
+    "sequence": 30,
+    "timestamp": "2026-09-30T04:57:14Z"
+  },
+  {
+    "audit_id": "dataset-audit-000031",
+    "current_hash": "5151c051258c3248597d93dc38c91392bffc99711d4b2e7d4fcb9be5c1f6945b",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:1ae3dae2b65081283eed636acadef7c027705784052812928de51834c60c4c7b",
+      "dataset_name": "ChatGPT Image Sep 13, 2026, 11_10_44 PM.png",
+      "dataset_sha256": "48f5bd21b0d053c6ec30902a55ae7d0c142cf3a30b671672a1a11d1f7eb6f264",
+      "event_id": "dataset-event-c6b57a4f9c57ef2809b7c933",
+      "evidence_digest": "sha256:1f314cc028bfb807bd851fa2253ea3f73e05a0d10f0bfed447991c041178e8ca",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "9af62bb161e5cbef39885a0018940f3f8a08a43f7ee5a89edee456136f618883",
+    "sequence": 31,
+    "timestamp": "2026-09-30T05:06:16Z"
+  },
+  {
+    "audit_id": "dataset-audit-000032",
+    "current_hash": "96c8f25d93ea90f7fc27aa80b8f4bf4d2d01b75c9fbce0ab7a07bb82583dc1cb",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:fdecf29453a1c56517bb25142e15743f5543cbeedad5e675d6f03587e5b56b11",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-b0d9a35bb6032954499b3629",
+      "evidence_digest": "sha256:f18e7319cb2b2573951efd74120b6615dd2546efee9f55d5228caffb8e9120f3",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "5151c051258c3248597d93dc38c91392bffc99711d4b2e7d4fcb9be5c1f6945b",
+    "sequence": 32,
+    "timestamp": "2026-09-30T05:26:00Z"
+  },
+  {
+    "audit_id": "dataset-audit-000033",
+    "current_hash": "2103cee3046a68cdaa379b0825f8dd7f4d729bc1c8760e95b08924e3bb15ff85",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "96c8f25d93ea90f7fc27aa80b8f4bf4d2d01b75c9fbce0ab7a07bb82583dc1cb",
+    "sequence": 33,
+    "timestamp": "2026-09-30T08:17:49Z"
+  },
+  {
+    "audit_id": "dataset-audit-000034",
+    "current_hash": "4b90d27ab2f8ef57b0f8267cb09be2013933defd103651e69ae70e9508057061",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "2103cee3046a68cdaa379b0825f8dd7f4d729bc1c8760e95b08924e3bb15ff85",
+    "sequence": 34,
+    "timestamp": "2026-09-30T08:19:05Z"
+  },
+  {
+    "audit_id": "dataset-audit-000035",
+    "current_hash": "439bf65949feadb676d90bef45665f80947ae0b9c43cdd35483db90e94392a5b",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:74419b9f71d63375d4cc0211f1c016308fb6af272705597903eb8d0706d60e2c",
+      "batch_id": "BATCH-A1",
+      "contributor_id": "CONTRIB-A",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-79423f48dc0c125507d58c30",
+      "evidence_digest": "sha256:b1a4726db52ce69c3f9fbc013376a3c366f70e0dd4dba33bf000dc38973c6120",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "4b90d27ab2f8ef57b0f8267cb09be2013933defd103651e69ae70e9508057061",
+    "sequence": 35,
+    "timestamp": "2026-09-30T08:19:22Z"
+  },
+  {
+    "audit_id": "dataset-audit-000036",
+    "current_hash": "0681f57eb1921d928549c467e5b768be12212815ec6386e8fb25b425a298b74f",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "439bf65949feadb676d90bef45665f80947ae0b9c43cdd35483db90e94392a5b",
+    "sequence": 36,
+    "timestamp": "2026-09-30T08:22:06Z"
+  },
+  {
+    "audit_id": "dataset-audit-000037",
+    "current_hash": "57db35b8672d4ce0e120e3c85065a01580a49758f5745419af0a44e48f1fb818",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "0681f57eb1921d928549c467e5b768be12212815ec6386e8fb25b425a298b74f",
+    "sequence": 37,
+    "timestamp": "2026-09-30T08:23:46Z"
+  },
+  {
+    "audit_id": "dataset-audit-000038",
+    "current_hash": "a8c2b35268e07c6e2fe3baf490e1335b25183cc623eb809062a43a606aa3000a",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "57db35b8672d4ce0e120e3c85065a01580a49758f5745419af0a44e48f1fb818",
+    "sequence": 38,
+    "timestamp": "2026-09-30T09:01:16Z"
+  },
+  {
+    "audit_id": "dataset-audit-000039",
+    "current_hash": "cfe1c7c9357554a4af891a91b9cfd5fa38c6ee83ad3f4450581848d5d420b2ba",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "a8c2b35268e07c6e2fe3baf490e1335b25183cc623eb809062a43a606aa3000a",
+    "sequence": 39,
+    "timestamp": "2026-09-30T09:05:08Z"
+  },
+  {
+    "audit_id": "dataset-audit-000040",
+    "current_hash": "92c52efcc5fa6daccdccd781827ad9128883b346f4ae88d0d365e130224995b4",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:7a28aeca2d5c2d233f2e19cd7f6e58fa6dbc629d8e113784289b08debc4a28ac",
+      "batch_id": "BATCH-TEST-01-B01",
+      "contributor_id": "TEST-01",
+      "dataset_name": "ChatGPT Image Sep 30, 2026 at 12_37_23 PM (1).png",
+      "dataset_sha256": "d199441c3b8d5da58f8258cda4c9823437194661e47172d17224d5bf4d4e2cfd",
+      "event_id": "dataset-event-87a09f9584c97c1e4bf69c28",
+      "evidence_digest": "sha256:4dafecb0082d8e6c1e76f2a420e3e1823d20a37abd0b2860fd93a32dbac04a75",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "cfe1c7c9357554a4af891a91b9cfd5fa38c6ee83ad3f4450581848d5d420b2ba",
+    "sequence": 40,
+    "timestamp": "2026-09-30T09:06:02Z"
+  },
+  {
+    "audit_id": "dataset-audit-000041",
+    "current_hash": "5ccf6dc0ee002b3c88ad9dca7346519d1d428f651f17fdcff61cecd3d636505c",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:af86cefdcd89b406fb2ca04fc7f0917c3ee39c395a55c80c91b96e85d355f9d8",
+      "batch_id": "BATCH-A1",
+      "contributor_id": "CONTRIB-A",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-da59ccd2e14d203a7f6e9d88",
+      "evidence_digest": "sha256:ae32fbf3549b4f456a0cae3a2a516d95a957f8c79b58f7737829ac2c42e6c065",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "92c52efcc5fa6daccdccd781827ad9128883b346f4ae88d0d365e130224995b4",
+    "sequence": 41,
+    "timestamp": "2026-09-30T09:06:11Z"
+  },
+  {
+    "audit_id": "dataset-audit-000042",
+    "current_hash": "0b12c3727001690106f8ba0cca8eda125d1468445ec92e558c785db7d0980979",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:64cc16bee40814280c5e9e5d6d04040ff55922bff4fc3aa55b4f05647b1e4789",
+      "batch_id": "BATCH-TEST-01-BT-99",
+      "contributor_id": "TEST-01",
+      "dataset_name": "live_intake_test.zip",
+      "dataset_sha256": "9d3bd228baecb2381171c5cfe5dfd66b6b921f73662606a09b37f83acc009f4e",
+      "event_id": "dataset-event-0ec5c11096e6d890289d3b6d",
+      "evidence_digest": "sha256:012c931af93d1c7d9a1fdc1980347a9b657a948aef14c14cc5c5e7e6862f26d4",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "5ccf6dc0ee002b3c88ad9dca7346519d1d428f651f17fdcff61cecd3d636505c",
+    "sequence": 42,
+    "timestamp": "2026-09-30T09:19:12Z"
+  },
+  {
+    "audit_id": "dataset-audit-000043",
+    "current_hash": "1fd909625bff400394878beef6e48db89c26a5108f443e364afecb5a5bf03a86",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:227a9635a9eb6a17bb9a3a3010756534c429162ebc125ef0013d8a56b7fe295e",
+      "batch_id": "BATCH-TEST-01-BT-99",
+      "contributor_id": "TEST-01",
+      "dataset_name": "live_intake_test.zip",
+      "dataset_sha256": "cdd79a3d8f59a6a787e72edd8de23de4c83aa6318afaf49ddd7a454049f65cfb",
+      "event_id": "dataset-event-24493ed11bdc982319ff0ce5",
+      "evidence_digest": "sha256:0db92fe53f4956010c203a685f3baaa857d8991762e751c3cf06b2974bb293be",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "0b12c3727001690106f8ba0cca8eda125d1468445ec92e558c785db7d0980979",
+    "sequence": 43,
+    "timestamp": "2026-09-30T09:23:16Z"
+  },
+  {
+    "audit_id": "dataset-audit-000044",
+    "current_hash": "be9fb077fd1cae4bff91ace1ee5251a659a0d6ddd6f0c1503476d97096a7c3d5",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:b04f846e6f676586b761c2936ca604d346184bd05912cf0dd89e77b31a53201b",
+      "batch_id": "BATCH-A1",
+      "contributor_id": "CONTRIB-A",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-4dddac48bdf9a191075e7648",
+      "evidence_digest": "sha256:f35970b2032bc71291eb08bd56eabc36f132f1561b4e738f3cefdecde8ce4fff",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "1fd909625bff400394878beef6e48db89c26a5108f443e364afecb5a5bf03a86",
+    "sequence": 44,
+    "timestamp": "2026-09-30T09:38:01Z"
+  },
+  {
+    "audit_id": "dataset-audit-000045",
+    "current_hash": "60ffbdcaf321db1c7c8abd0ff9eaa7bef74fbf494e7ac8ba082fbaccaf22d3a5",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "be9fb077fd1cae4bff91ace1ee5251a659a0d6ddd6f0c1503476d97096a7c3d5",
+    "sequence": 45,
+    "timestamp": "2026-09-30T09:38:46Z"
+  },
+  {
+    "audit_id": "dataset-audit-000046",
+    "current_hash": "3ab80f9fe17a118060b3c17e46ae4acb75a0d3a3da0b45d24ad68c04bf61f823",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:ff1eb48ced7f2e96a3080a5454525adbe10f5d7f4cfaec277f9c4641fee7443f",
+      "batch_id": "BATCH-TEST-01-BT-99",
+      "contributor_id": "TEST-01",
+      "dataset_name": "live_intake_test.zip",
+      "dataset_sha256": "fca4e32c4bd61f4258c894a4026c142f455609354e0e6df4baf978d426d95b62",
+      "event_id": "dataset-event-a3fb6f626fff16ba7fe6db05",
+      "evidence_digest": "sha256:044391fde32ac6759e26bdda4d16bf81c8d493e59f481125e103cbef46aa66b4",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "60ffbdcaf321db1c7c8abd0ff9eaa7bef74fbf494e7ac8ba082fbaccaf22d3a5",
+    "sequence": 46,
+    "timestamp": "2026-09-30T09:40:14Z"
+  },
+  {
+    "audit_id": "dataset-audit-000047",
+    "current_hash": "650346b972febcfba15914d9b425e8ef3e9921cabbd4ba2c84e052978915ce6b",
+    "event_type": "test",
+    "payload": {
+      "event_id": "dataset-event-963a7c65affc98fe89d51a13"
+    },
+    "previous_hash": "3ab80f9fe17a118060b3c17e46ae4acb75a0d3a3da0b45d24ad68c04bf61f823",
+    "sequence": 47,
+    "timestamp": "2026-09-30T09:41:05Z"
+  },
+  {
+    "audit_id": "dataset-audit-000048",
+    "current_hash": "3be40e007d23685718507972d4ef1151293719a284acea2a979ea14cd9d91589",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:dcf34e602c83cf4acf57da88d6522d02a8ccfe0feea316a886a6660c6aa683e8",
+      "batch_id": "BATCH-TEST-01-BT-99",
+      "contributor_id": "TEST-01",
+      "dataset_name": "live_intake_test.zip",
+      "dataset_sha256": "c8c2b3c7d3f4b10150467c185b230b7dc61a669c4ca081e977575dd85caee6b1",
+      "event_id": "dataset-event-4315e615d0716303ffbf0df3",
+      "evidence_digest": "sha256:1c08f28a5778e02267d11da0e5ba539c2c283615ce3f05cd87da1f900d4202df",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "650346b972febcfba15914d9b425e8ef3e9921cabbd4ba2c84e052978915ce6b",
+    "sequence": 48,
+    "timestamp": "2026-09-30T09:51:04Z"
+  },
+  {
+    "audit_id": "dataset-audit-000049",
+    "current_hash": "d4a6e5907475a10d930374c38171c29cb512824cf092fa6447b41f57b70dd7d3",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:37cc321ea2b7873dd379a5b7eb505814f88ace6c523a824291ca20d2d798103b",
+      "batch_id": "BATCH-A1",
+      "contributor_id": "CONTRIB-A",
+      "dataset_name": "synth_test.png",
+      "dataset_sha256": "c2ae96e29de2a1bdd3a57451561feb602d8d6ee7c93ff1aff0f05d6793331896",
+      "event_id": "dataset-event-84248223c2e67222c8dad592",
+      "evidence_digest": "sha256:b96d1d5fecc49c7e0453d12acbcd68fb87f318685424e14bf580753c1319fed2",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "3be40e007d23685718507972d4ef1151293719a284acea2a979ea14cd9d91589",
+    "sequence": 49,
+    "timestamp": "2026-09-30T09:52:40Z"
+  },
+  {
+    "audit_id": "dataset-audit-000050",
+    "current_hash": "1116d70d89af3a7de5c0b4ae3f516fc6becbd91ebbc5c6cc4f6f806442419bb1",
+    "event_type": "dataset_verification_run",
+    "payload": {
+      "dataset": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+      "status": "SUCCESS"
+    },
+    "previous_hash": "d4a6e5907475a10d930374c38171c29cb512824cf092fa6447b41f57b70dd7d3",
+    "sequence": 50,
+    "timestamp": "2026-09-30T09:53:25Z"
+  },
+  {
+    "audit_id": "dataset-audit-000051",
+    "current_hash": "d58a4725f080c2ea7d8b5e9ca3e535536838a100848c44924f929b0c036e1bd0",
+    "event_type": "test",
+    "payload": {
+      "event_id": "dataset-event-339f1e1da6e5289ff9c4e4f6"
+    },
+    "previous_hash": "1116d70d89af3a7de5c0b4ae3f516fc6becbd91ebbc5c6cc4f6f806442419bb1",
+    "sequence": 51,
+    "timestamp": "2026-09-30T09:53:37Z"
+  },
+  {
+    "audit_id": "dataset-audit-000052",
+    "current_hash": "8a2dac9ea1bb5e691b415607f46ea717eda03d9245767e659483cb204c367ef0",
+    "event_type": "dataset_security_assurance",
+    "payload": {
+      "analysis_digest": "sha256:37b6044b7cba27abbd39d67af22387112144563392362f901b0686289e91b6a7",
+      "batch_id": "BATCH-TEST-01-BT-99",
+      "contributor_id": "TEST-01",
+      "dataset_name": "live_intake_test.zip",
+      "dataset_sha256": "ef6cbca4f51919c6cf87afa491fec43c549950922a3d33147d0c1414a72cc324",
+      "event_id": "dataset-event-9409707bdd76fb576de83c1f",
+      "evidence_digest": "sha256:1cef0d0dbb50f504202de91aad4c47aee283771d3f62f397562f4672525ec2f2",
+      "provenance_trusted": true,
+      "replay_valid": true
+    },
+    "previous_hash": "d58a4725f080c2ea7d8b5e9ca3e535536838a100848c44924f929b0c036e1bd0",
+    "sequence": 52,
+    "timestamp": "2026-09-30T09:55:08Z"
+  }
+]

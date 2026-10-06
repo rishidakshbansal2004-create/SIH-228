@@ -1,0 +1,36 @@
+{
+  "audit_verification": {
+    "events": 52,
+    "last_hash": "8a2dac9ea1bb5e691b415607f46ea717eda03d9245767e659483cb204c367ef0",
+    "reason": "Dataset audit hash chain is valid.",
+    "valid": true
+  },
+  "checkpoint_verification": {
+    "audit_valid": true,
+    "content_binding_valid": true,
+    "reason": "Signed checkpoint matches the current dataset audit head.",
+    "schema_valid": true,
+    "signature_valid": true,
+    "trust_anchor_valid": true,
+    "trusted": true
+  },
+  "provenance_verification": {
+    "dataset_binding_valid": true,
+    "missing_fields": [],
+    "policy_valid": true,
+    "reason": "Signed dataset provenance is valid and bound to the trusted local dataset key.",
+    "schema_valid": true,
+    "signature_valid": true,
+    "trust_anchor_valid": true,
+    "trusted": true
+  },
+  "replay_verification": {
+    "context_valid": true,
+    "event_id_unique": true,
+    "fresh": true,
+    "nonce_unique": true,
+    "reason": "Freshness, nonce, event identity, context and sequence checks passed.",
+    "sequence_valid": true,
+    "valid": true
+  }
+}

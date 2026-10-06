@@ -1,0 +1,20 @@
+{
+  "manifest_type": "TrustCV Dataset Manifest",
+  "manifest_version": "1.0",
+  "dataset_name": "Dataset_D001_Satellite",
+  "expected_sha256": "d001e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852",
+  "source": "TrustCV Local Dataset Intake",
+  "vendor": "TrustCV Scientific Assurance",
+  "contributor_id": "CONTRIB-ALPHA",
+  "version": "local-intake-1.0",
+  "created_at": "2026-09-30T09:53:25Z",
+  "signature_algorithm": "Ed25519",
+  "hash_algorithm": "SHA-256",
+  "canonicalization_version": "1.0",
+  "trust_anchor_id": "TRUSTCV-DATASET-LOCAL-DEFAULT",
+  "key_id": "TRUSTCV-DATASET-C9C5ACECB7CBDD2B",
+  "public_key": "bv47eh+nE1UqKmmnpTHbjQ7/o/jCValow2cmdGd67AQ=",
+  "attestation": "LOCAL_TRUSTCV_INTAKE",
+  "batch_id": "BATCH-A-001",
+  "signature": "VihIGTCbevkKYuk+zNFtPrrh1GHpVqfcq8HfAl+0Wth/aPMdZod8t42A2pIdhGsQ0r+a8OluJN5S+GNJaN7yCg=="
+}
