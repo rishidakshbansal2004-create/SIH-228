@@ -64,6 +64,30 @@ def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 def load_passkey_hash():
+    """Load the operator passkey SHA-256 hash from Streamlit secrets (preferred),
+    with an optional plaintext secret or local file fallback for development."""
+    # 1) Streamlit secrets: hash 
+    try:
+        value = st.secrets.get("passkey_sha256", "")
+        if not value and "auth" in st.secrets:
+            value = st.secrets["auth"].get("passkey_sha256", "")
+        value = str(value).strip().lower()
+        if value:
+            return value
+    except Exception:
+        pass  # no secrets.toml available
+
+    # 2) Streamlit secrets: plaintext passkey
+    try:
+        plain = st.secrets.get("passkey", "")
+        if not plain and "auth" in st.secrets:
+            plain = st.secrets["auth"].get("passkey", "")
+        if plain:
+            return sha256_text(str(plain))
+    except Exception:
+        pass
+
+    # 3) Local file fallback (development only)
     for config_path in (PASSKEY_FILE, LOCAL_PASSKEY_FILE):
         if not config_path.exists():
             continue
@@ -77,10 +101,10 @@ def load_passkey_hash():
 def verify_passkey(value: str):
     expected = load_passkey_hash()
     if not expected:
-        return False, "Contributor passkey is not configured. Run init_passkey.py once."
-    supplied = sha256_text(value)
+        return False, "Operator passkey is not configured. Add `passkey_sha256` to Streamlit secrets."
+    supplied = sha256_text(value or "")
     ok = secrets.compare_digest(supplied, expected)
-    return ok, "Contributor passkey verified." if ok else "Invalid contributor passkey."
+    return ok, "Operator passkey verified." if ok else "Invalid operator passkey."
 
 # ================================================================
 # CRYPTOGRAPHIC AUDIT — TAMPER-EVIDENT HASH CHAIN (NO POW/MINING)
