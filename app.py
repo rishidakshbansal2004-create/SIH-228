@@ -46,6 +46,7 @@ with gr.Blocks(title="TrustCV Verification & Security API") as demo:
     gr.Markdown("- **Phase 4 B3D Analysis**: `/api/verify/model/phase4`")
     gr.Markdown("- **Swagger Documentation**: [`/docs`](/docs)")
     gr.Markdown("- **OpenAPI Specification**: [`/openapi.json`](/openapi.json)")
+    gr.Markdown("- **Dataset Verification (Streamlit)**: [`https://ciphervision-dataset.streamlit.app`](https://ciphervision-dataset.streamlit.app)")
 
 # Hook all FastAPI endpoints directly into Gradio's internal FastAPI server
 orig_create_app = gr.routes.App.create_app

@@ -4312,7 +4312,7 @@ async def analyze_batch(
 
 @app.post("/api/verify/dataset")
 async def verify_dataset(file: UploadFile = File(...)):
-    # Dataset work is intentionally left for the next integration stage.
+    # Dataset verification is hosted on the dedicated Streamlit service
     data = await file.read()
     digest = sha256_bytes(data)
     return {
@@ -4320,8 +4320,9 @@ async def verify_dataset(file: UploadFile = File(...)):
         "sha256": digest,
         "checks": [
             {"id": "hash", "label": "Hash Verification", "passed": True, "detail": f"sha256:{digest[:12]}..."},
-            {"id": "mirad", "label": "MIRAD Dataset Verification", "passed": None, "detail": "Dataset MIRAD integration is not wired in this stage."},
+            {"id": "mirad", "label": "MIRAD Dataset Verification", "passed": None, "detail": "Dataset verification engine is hosted on https://ciphervision-dataset.streamlit.app"},
         ],
+        "redirect_url": "https://ciphervision-dataset.streamlit.app",
     }
 
 
