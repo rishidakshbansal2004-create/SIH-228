@@ -1,0 +1,23 @@
+{
+  "annotation_format": "NONE / UNAVAILABLE",
+  "attestation": "LOCAL_TRUSTCV_INTAKE",
+  "batch_id": "BATCH-CNTRB-C 4-003-B01",
+  "canonicalization_version": "1.0",
+  "contribution_id": "CNTRB-C 4-003",
+  "contributor_id": "C 4",
+  "created_at": "2026-10-05T13:24:25Z",
+  "dataset_name": "dataset",
+  "expected_sha256": "53e483d50698ea0cd3266def2465c177d3b4cbd4935f35151b04689bc82f4083",
+  "hash_algorithm": "SHA-256",
+  "key_id": "TRUSTCV-DATASET-C9C5ACECB7CBDD2B",
+  "manifest_type": "TrustCV Dataset Manifest",
+  "manifest_version": "1.0",
+  "public_key": "bv47eh+nE1UqKmmnpTHbjQ7/o/jCValow2cmdGd67AQ=",
+  "signature": "BrkxszqpemQSTLdiwA6RRtJ4WLFgP4xqAV62N16uQWBIZ+j4aNCh7Q63Sqe4sPKEuY9RDCD0FqJ74Bzc98cnAg==",
+  "signature_algorithm": "Ed25519",
+  "source": "TrustCV Local Dataset Intake",
+  "task_type": "UNANNOTATED_IMAGE_DATASET",
+  "trust_anchor_id": "TRUSTCV-DATASET-LOCAL-DEFAULT",
+  "vendor": "Verified Contributor",
+  "version": "local-intake-1.0"
+}

@@ -4,7 +4,9 @@ from pathlib import Path
 # Isolate security state so the test is deterministic and never touches a user's home directory.
 tmp = tempfile.TemporaryDirectory()
 os.environ["HOME"] = tmp.name
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "Lib" / "site-packages"))
 import trustcv_mirad_dataset_security as sec
 
 
@@ -25,3 +27,7 @@ def test_signed_provenance_replay_audit_checkpoint():
     assert sec.verify_dataset_audit()["valid"]
     cp=sec.create_signed_checkpoint()
     assert sec.verify_dataset_checkpoint()["trusted"]
+
+if __name__ == "__main__":
+    test_signed_provenance_replay_audit_checkpoint()
+    print("ALL SECURITY SMOKE TESTS PASSED!")

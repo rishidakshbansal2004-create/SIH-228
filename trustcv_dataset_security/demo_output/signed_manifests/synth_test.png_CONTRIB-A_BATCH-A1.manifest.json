@@ -1,0 +1,20 @@
+{
+  "attestation": "LOCAL_TRUSTCV_INTAKE",
+  "batch_id": "BATCH-A1",
+  "canonicalization_version": "1.0",
+  "contributor_id": "CONTRIB-A",
+  "created_at": "2026-10-08T20:57:49Z",
+  "dataset_name": "Dataset_Alpha",
+  "expected_sha256": "9b5d34dd98597166ff1c026e21108bf6605a0c7b49b1c14b7b6fe5668cd3543e",
+  "hash_algorithm": "SHA-256",
+  "key_id": "TRUSTCV-DATASET-C9C5ACECB7CBDD2B",
+  "manifest_type": "TrustCV Dataset Manifest",
+  "manifest_version": "1.0",
+  "public_key": "bv47eh+nE1UqKmmnpTHbjQ7/o/jCValow2cmdGd67AQ=",
+  "signature": "Ivxz2/FaceMfX0dRBJ1xMTMJrKkSShPenc+B2lXpCbMm3wPMIdnaCMqesqeV5cZJSu/kBuroMDpycGIJGaJ9Cg==",
+  "signature_algorithm": "Ed25519",
+  "source": "TrustCV Local Dataset Intake",
+  "trust_anchor_id": "TRUSTCV-DATASET-LOCAL-DEFAULT",
+  "vendor": "Verified Contributor",
+  "version": "local-intake-1.0"
+}

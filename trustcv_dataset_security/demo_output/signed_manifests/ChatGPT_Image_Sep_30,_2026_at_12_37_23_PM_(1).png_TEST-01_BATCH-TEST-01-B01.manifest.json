@@ -1,0 +1,20 @@
+{
+  "attestation": "LOCAL_TRUSTCV_INTAKE",
+  "batch_id": "BATCH-001",
+  "canonicalization_version": "1.0",
+  "contributor_id": "TEST-01",
+  "created_at": "2026-09-30T13:24:55Z",
+  "dataset_name": "ChatGPT Image Sep 30, 2026 at 12_37_23 PM (1).png",
+  "expected_sha256": "d199441c3b8d5da58f8258cda4c9823437194661e47172d17224d5bf4d4e2cfd",
+  "hash_algorithm": "SHA-256",
+  "key_id": "TRUSTCV-DATASET-C9C5ACECB7CBDD2B",
+  "manifest_type": "TrustCV Dataset Manifest",
+  "manifest_version": "1.0",
+  "public_key": "bv47eh+nE1UqKmmnpTHbjQ7/o/jCValow2cmdGd67AQ=",
+  "signature": "h27q+2rU9AII45h3fIllxh40BAaEAwc0W2QxXqJLRi+AmHyJPOoCIa6J2y0FvqBI6Axb4Wr9AQdN2ZCoGoNZCA==",
+  "signature_algorithm": "Ed25519",
+  "source": "TrustCV Local Dataset Intake",
+  "trust_anchor_id": "TRUSTCV-DATASET-LOCAL-DEFAULT",
+  "vendor": "Verified Contributor",
+  "version": "local-intake-1.0"
+}

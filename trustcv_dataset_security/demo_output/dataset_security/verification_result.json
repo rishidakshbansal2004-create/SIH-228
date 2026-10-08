@@ -1,7 +1,7 @@
 {
   "audit_verification": {
-    "events": 52,
-    "last_hash": "8a2dac9ea1bb5e691b415607f46ea717eda03d9245767e659483cb204c367ef0",
+    "events": 160,
+    "last_hash": "767d761b9e7519a97f3d02def28e1bc72a1ad7e362a5b180d321103324d6c8bd",
     "reason": "Dataset audit hash chain is valid.",
     "valid": true
   },

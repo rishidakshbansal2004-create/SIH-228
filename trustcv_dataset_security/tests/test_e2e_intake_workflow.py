@@ -3,7 +3,8 @@ import os
 import sys
 import zipfile
 from pathlib import Path
-from PIL import Image
+
+import tempfile
 
 ROOT = Path(__file__).resolve().parent
 if ROOT.name in ("tests", "scratch"):
@@ -12,8 +13,18 @@ if ROOT.name in ("tests", "scratch"):
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "Lib/site-packages"))
 
+# Isolate database for AppTest so production database is never contaminated
+tmp_dir = tempfile.TemporaryDirectory()
+test_db = Path(tmp_dir.name) / "test_e2e_intake.db"
+os.environ["TRUSTCV_DB_PATH"] = str(test_db)
+
+from PIL import Image
 from streamlit.testing.v1 import AppTest
 from contributor_backend import get_contributor_backend
+
+# Pre-register a clean test contributor in this isolated test database
+init_db = get_contributor_backend(test_db)
+init_db.register_contributor("CONTRIB-E2E-TEST", display_name="E2E Test Contributor", organization="Test Org", source_id="PORTAL")
 
 print("=" * 70)
 print("TESTING REAL DATASET INTAKE UPLOAD WORKFLOW VIA APPTEST")

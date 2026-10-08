@@ -3,14 +3,19 @@ import sys
 import types
 import zipfile
 from pathlib import Path
-from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "Lib/site-packages"))
+
+from PIL import Image
+
 class _SS(dict):
     pass
+
 _fake_st = types.SimpleNamespace(session_state=_SS(), set_page_config=lambda **_: None, runtime=types.SimpleNamespace(exists=lambda: False))
 sys.modules.setdefault("streamlit", _fake_st)
-sys.path.insert(0, str(ROOT))
+
 SRC = (ROOT / "trustcv_final.py").read_text(encoding="utf-8")
 SRC = SRC[:SRC.index("# UI\n")]
 NS = {"__file__": str(ROOT / "trustcv_final.py"), "st": _fake_st}
@@ -55,3 +60,8 @@ def test_corrupt_zip_fails_cleanly():
         assert "Invalid or corrupt ZIP dataset" in str(e)
     else:
         raise AssertionError("corrupt ZIP was accepted")
+
+if __name__ == "__main__":
+    test_direct_nested_and_mislabelled()
+    test_corrupt_zip_fails_cleanly()
+    print("ALL DATASET INGESTION TESTS PASSED!")

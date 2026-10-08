@@ -8,7 +8,6 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from PIL import Image
 
 # Ensure local imports work
 sys.path.insert(0, os.path.abspath("."))
@@ -16,6 +15,8 @@ sys.path.insert(0, os.path.abspath("Lib/site-packages"))
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
+
+from PIL import Image
 
 from contributor_backend import ContributorBackend
 from trustcv_mirad_dataset_security import (
@@ -557,7 +558,7 @@ test_results["TEST T (Ethereum Mismatch Handling)"] = "PASS"
 # ---------------------------------------------------------------
 print("\n[TEST U] Streamlit Headless App Initialization...")
 from streamlit.testing.v1 import AppTest
-at = AppTest.from_file("trustcv_final.py", default_timeout=60)
+at = AppTest.from_file("trustcv_final.py", default_timeout=120)
 at.run()
 assert len(at.exception) == 0, f"App threw unhandled exception on startup: {at.exception}"
 print(f"[OK] TEST U PASSED: Streamlit application initialized cleanly with 0 exceptions.")

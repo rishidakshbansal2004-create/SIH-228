@@ -281,14 +281,18 @@ def create_signed_dataset_manifest(
     owner: str = "Verified Contributor",
     vendor: str | None = None,
     contributor_id: str | None = None,
+    contribution_id: str | None = None,
     batch_id: str | None = None,
+    task_type: str | None = None,
+    annotation_format: str | None = None,
+    label_schema: list[str] | None = None,
     version: str = "local-intake-1.0",
 ) -> dict[str, Any]:
     """Create a locally trusted manifest for the exact uploaded dataset bytes.
 
     The local trusted Ed25519 authority signs the canonicalized payload
-    including the SHA-256 of the dataset, the contributor identity, and
-    optional batch identity, establishing an authentic, verifiable provenance root.
+    including the SHA-256 of the dataset, the contributor identity,
+    contribution identity, and batch identity, establishing an authentic, verifiable provenance root.
     """
     anchor = ensure_trust_anchor()
     clean_digest = str(dataset_digest).removeprefix("sha256:").strip().lower()
@@ -312,8 +316,17 @@ def create_signed_dataset_manifest(
         "public_key": anchor["public_key"],
         "attestation": "LOCAL_TRUSTCV_INTAKE",
     }
+    if contribution_id:
+        record["contribution_id"] = str(contribution_id).strip()
     if batch_id:
         record["batch_id"] = str(batch_id).strip()
+    if task_type:
+        record["task_type"] = str(task_type).strip()
+    if annotation_format:
+        record["annotation_format"] = str(annotation_format).strip()
+    if label_schema is not None:
+        record["label_schema"] = label_schema
+
     record["signature"] = base64.b64encode(
         _load_private().sign(canonicalize(record))
     ).decode("ascii")
@@ -325,9 +338,12 @@ def verify_signed_dataset_manifest(
     *,
     actual_dataset_digest: str,
     expected_contributor_id: str | None = None,
+    expected_contribution_id: str | None = None,
     expected_batch_id: str | None = None,
     actual_dataset_name: str | None = None,
     trusted_anchor: dict[str, Any] | None = None,
+    backend: Any = None,
+    enforce_lineage: bool = True,
 ) -> dict[str, Any]:
     """
     Cryptographically verify a signed dataset manifest against actual observed values.
@@ -339,7 +355,8 @@ def verify_signed_dataset_manifest(
       3. The signing key is recognized by the trusted dataset trust anchor.
       4. The signed dataset digest strictly matches the actual uploaded dataset digest.
       5. The signed contributor/vendor strictly matches the expected contributor (if specified).
-      6. The signed batch strictly matches the expected batch (if specified).
+      6. The signed contribution strictly matches the expected contribution (if specified).
+      7. The signed batch strictly matches the expected batch (if specified).
     """
     # 1. Parse manifest
     if isinstance(manifest_input, bytes):
@@ -357,6 +374,7 @@ def verify_signed_dataset_manifest(
                     "digital_signature": {"status": "UNAVAILABLE", "reason": "Manifest unreadable"},
                     "dataset_digest": {"status": "UNAVAILABLE", "signed": None, "observed": actual_dataset_digest},
                     "contributor": {"status": "UNAVAILABLE", "signed": None, "observed": expected_contributor_id},
+                    "contribution": {"status": "UNAVAILABLE", "signed": None, "observed": expected_contribution_id},
                     "batch": {"status": "UNAVAILABLE", "signed": None, "observed": expected_batch_id},
                 },
             }
@@ -375,6 +393,7 @@ def verify_signed_dataset_manifest(
                     "digital_signature": {"status": "UNAVAILABLE", "reason": "Manifest unreadable"},
                     "dataset_digest": {"status": "UNAVAILABLE", "signed": None, "observed": actual_dataset_digest},
                     "contributor": {"status": "UNAVAILABLE", "signed": None, "observed": expected_contributor_id},
+                    "contribution": {"status": "UNAVAILABLE", "signed": None, "observed": expected_contribution_id},
                     "batch": {"status": "UNAVAILABLE", "signed": None, "observed": expected_batch_id},
                 },
             }
@@ -500,60 +519,164 @@ def verify_signed_dataset_manifest(
         "reason": "Signed dataset digest matches actual uploaded bytes." if digest_match else f"Digest mismatch: signed={signed_digest[:16]}... vs observed={observed_digest[:16]}...",
     }
 
-    # 5. Contributor Binding
+    # 5. Extract Signed Identity Context
     signed_contrib = str(
         manifest.get("contributor_id")
         or manifest.get("vendor")
         or manifest.get("owner")
         or ""
     ).strip()
+    signed_contrib_id = str(manifest.get("contribution_id") or "").strip()
+    signed_batch = str(manifest.get("batch_id") or manifest.get("batch") or "").strip()
 
+    # Query persistent backend for exact signed lineage if enabled and backend provided
+    lineage_res = None
+    if enforce_lineage and backend is not None:
+        if hasattr(backend, "verify_dataset_manifest_lineage"):
+            lineage_res = backend.verify_dataset_manifest_lineage(
+                dataset_digest=actual_dataset_digest,
+                contributor_id=signed_contrib,
+                contribution_id=signed_contrib_id or None,
+                batch_id=signed_batch or None,
+            )
+
+    # 6. Contributor Binding
     if expected_contributor_id:
         obs_contrib = str(expected_contributor_id).strip()
-        # Accept match or fallback to ROOT/DEFAULT when not specified in upload
         if obs_contrib in ("ROOT / UNKNOWN SOURCE", "DEFAULT_CONTRIBUTOR", ""):
             contrib_match = True
             contrib_status = "MATCH"
         else:
             contrib_match = (signed_contrib.lower() == obs_contrib.lower())
             contrib_status = "MATCH" if contrib_match else "MISMATCH"
+    elif lineage_res and lineage_res.get("persisted_contribution"):
+        obs_contrib = lineage_res["persisted_contribution"].get("contributor_id") or signed_contrib
+        contrib_match = bool(signed_contrib and signed_contrib.lower() == obs_contrib.lower())
+        contrib_status = "MATCH" if contrib_match else "MISMATCH"
     else:
         obs_contrib = signed_contrib or "NOT_SPECIFIED"
-        contrib_match = True
+        contrib_match = bool(signed_contrib)
         contrib_status = "MATCH" if signed_contrib else "NOT_SPECIFIED"
 
     checks["contributor"] = {
         "status": contrib_status,
         "signed": signed_contrib or "NOT_SPECIFIED",
         "observed": obs_contrib,
+        "persisted": (lineage_res.get("persisted_contribution", {}).get("contributor_id") if lineage_res and lineage_res.get("persisted_contribution") else None),
         "reason": "Contributor binding matches." if contrib_status == "MATCH" else (
             "No expected contributor specified." if contrib_status == "NOT_SPECIFIED" else
             f"Contributor mismatch: signed '{signed_contrib}' vs observed '{obs_contrib}'"
         ),
     }
 
-    # 6. Batch Binding (if present in manifest)
-    signed_batch = str(manifest.get("batch_id") or manifest.get("batch") or "").strip()
-    if expected_batch_id and signed_batch:
-        obs_batch = str(expected_batch_id).strip()
-        batch_match = (signed_batch.lower() == obs_batch.lower())
-        batch_status = "MATCH" if batch_match else "MISMATCH"
+    # 7. Contribution Binding
+    if lineage_res is not None:
+        l_stat = lineage_res.get("status")
+        p_c = lineage_res.get("persisted_contribution")
+        persisted_contrib_id = p_c.get("contribution_id") if p_c else None
+
+        if l_stat == "CONTRIBUTION_CONTEXT_NOT_FOUND":
+            contrib_id_status = "CONTRIBUTION_CONTEXT_NOT_FOUND"
+            obs_contrib_id = "NOT_FOUND"
+            contrib_id_reason = lineage_res.get("reason", f"Signed contribution '{signed_contrib_id}' not found in persistent database.")
+        elif l_stat == "PERSISTED_LINEAGE_INCONSISTENCY" and any(c.get("field") in ("contribution_id", "dataset_digest") for c in lineage_res.get("conflicts", [])):
+            contrib_id_status = "PERSISTED_LINEAGE_INCONSISTENCY"
+            obs_contrib_id = persisted_contrib_id or "INCONSISTENT"
+            contrib_id_reason = lineage_res.get("reason", "Persisted contribution lineage inconsistency.")
+        elif l_stat == "MATCH":
+            obs_contrib_id = persisted_contrib_id or signed_contrib_id
+            if expected_contribution_id and expected_contribution_id.strip().lower() != signed_contrib_id.lower():
+                contrib_id_status = "MISMATCH"
+                obs_contrib_id = expected_contribution_id.strip()
+                contrib_id_reason = f"Contribution mismatch: signed '{signed_contrib_id}' vs expected '{obs_contrib_id}'"
+            else:
+                contrib_id_status = "MATCH" if signed_contrib_id else "NOT_SPECIFIED"
+                contrib_id_reason = f"Contribution binding matches persisted backend record '{obs_contrib_id}'."
+        else:
+            contrib_id_status = l_stat
+            obs_contrib_id = persisted_contrib_id or "UNKNOWN"
+            contrib_id_reason = lineage_res.get("reason", "Contribution lineage evaluated.")
     else:
-        obs_batch = expected_batch_id or signed_batch or "NOT_SPECIFIED"
-        batch_match = True
-        batch_status = "MATCH" if (signed_batch and signed_batch == obs_batch) else "NOT_SPECIFIED"
+        if expected_contribution_id:
+            obs_contrib_id = expected_contribution_id.strip()
+            if signed_contrib_id:
+                c_match = (signed_contrib_id.lower() == obs_contrib_id.lower())
+                contrib_id_status = "MATCH" if c_match else "MISMATCH"
+                contrib_id_reason = "Contribution binding matches." if c_match else f"Contribution mismatch: signed '{signed_contrib_id}' vs observed '{obs_contrib_id}'"
+            else:
+                contrib_id_status = "MISMATCH"
+                contrib_id_reason = "Contribution missing from manifest."
+        else:
+            obs_contrib_id = signed_contrib_id or "NOT_SPECIFIED"
+            contrib_id_status = "MATCH" if signed_contrib_id else "NOT_SPECIFIED"
+            contrib_id_reason = "Contribution binding matches." if signed_contrib_id else "No expected contribution specified."
+
+    checks["contribution"] = {
+        "status": contrib_id_status,
+        "signed": signed_contrib_id or "NOT_SPECIFIED",
+        "observed": obs_contrib_id,
+        "persisted": (lineage_res.get("persisted_contribution", {}).get("contribution_id") if lineage_res and lineage_res.get("persisted_contribution") else None),
+        "reason": contrib_id_reason,
+    }
+
+    # 8. Batch Binding
+    if lineage_res is not None:
+        l_stat = lineage_res.get("status")
+        p_b = lineage_res.get("persisted_batch")
+        persisted_batch_id = p_b.get("batch_id") if p_b else None
+
+        if l_stat == "PERSISTED_LINEAGE_INCONSISTENCY" and any("batch" in c.get("field", "") for c in lineage_res.get("conflicts", [])):
+            batch_status = "PERSISTED_LINEAGE_INCONSISTENCY"
+            obs_batch = "INCONSISTENT"
+            batch_reason = lineage_res.get("reason", "Persisted batch lineage inconsistency.")
+        elif l_stat == "CONTRIBUTION_CONTEXT_NOT_FOUND":
+            if expected_batch_id and expected_batch_id.strip().lower() != signed_batch.lower():
+                batch_status = "MISMATCH"
+                obs_batch = expected_batch_id.strip()
+                batch_reason = f"Batch mismatch: signed '{signed_batch}' vs expected '{obs_batch}'"
+            else:
+                batch_status = "CONTRIBUTION_CONTEXT_NOT_FOUND"
+                obs_batch = "UNRESOLVED"
+                batch_reason = "Batch cannot be resolved because contribution context was not found in persistent database."
+        elif expected_batch_id and expected_batch_id.strip().lower() != signed_batch.lower():
+            batch_status = "MISMATCH"
+            obs_batch = expected_batch_id.strip()
+            batch_reason = f"Batch mismatch: signed '{signed_batch}' vs expected '{obs_batch}'"
+        elif l_stat == "MATCH":
+            obs_batch = persisted_batch_id or signed_batch
+            batch_status = "MATCH" if signed_batch else "NOT_SPECIFIED"
+            batch_reason = f"Batch binding matches persisted backend record '{obs_batch}'."
+        else:
+            batch_status = "MATCH" if (signed_batch and persisted_batch_id and signed_batch.lower() == persisted_batch_id.lower()) else ("NOT_SPECIFIED" if not signed_batch else "MISMATCH")
+            obs_batch = persisted_batch_id or signed_batch
+            batch_reason = lineage_res.get("reason", "Batch lineage evaluated.")
+    else:
+        if expected_batch_id:
+            obs_batch = expected_batch_id.strip()
+            if signed_batch:
+                b_match = (signed_batch.lower() == obs_batch.lower())
+                batch_status = "MATCH" if b_match else "MISMATCH"
+                batch_reason = "Batch binding matches." if b_match else f"Batch mismatch: signed '{signed_batch}' vs observed '{obs_batch}'"
+            else:
+                batch_status = "MISMATCH"
+                batch_reason = "Batch missing from manifest."
+        else:
+            obs_batch = signed_batch or "NOT_SPECIFIED"
+            batch_status = "MATCH" if signed_batch else "NOT_SPECIFIED"
+            batch_reason = "Batch binding matches." if signed_batch else "No expected batch specified."
 
     checks["batch"] = {
         "status": batch_status,
         "signed": signed_batch or "NOT_SPECIFIED",
         "observed": obs_batch,
-        "reason": "Batch binding matches." if batch_status == "MATCH" else (
-            "Batch not specified in manifest." if batch_status == "NOT_SPECIFIED" else
-            f"Batch mismatch: signed '{signed_batch}' vs observed '{obs_batch}'"
-        ),
+        "persisted": (lineage_res.get("persisted_batch", {}).get("batch_id") if lineage_res and lineage_res.get("persisted_batch") else None),
+        "reason": batch_reason,
     }
 
-    # 7. Dataset Name Binding (if present in manifest)
+    if lineage_res:
+        checks["lineage"] = lineage_res
+
+    # 9. Dataset Name Binding (if present in manifest)
     signed_name = str(manifest.get("dataset_name") or "").strip()
     if actual_dataset_name and signed_name:
         obs_name = str(actual_dataset_name).strip()
@@ -569,7 +692,19 @@ def verify_signed_dataset_manifest(
         "observed": obs_name,
     }
 
-    # 8. Determine Overall Truthful Status
+    # 10. Dataset Annotation / Purpose Context
+    annotation_format = str(manifest.get("annotation_format") or "NONE / UNAVAILABLE")
+    task_type = str(manifest.get("task_type") or "UNANNOTATED_IMAGE_DATASET")
+    label_schema = manifest.get("label_schema")
+    checks["annotation_context"] = {
+        "status": "VALID",
+        "format": annotation_format,
+        "task_type": task_type,
+        "label_schema": label_schema,
+        "reason": f"Observed dataset facts: format={annotation_format}, task={task_type}",
+    }
+
+    # 11. Determine Overall Truthful Status
     if sig_status == "INVALID_SIGNATURE":
         overall = "INVALID_SIGNATURE"
         reason = "Digital signature verification failed (tampered content or bad signature)."
@@ -585,13 +720,22 @@ def verify_signed_dataset_manifest(
     elif contrib_status == "MISMATCH":
         overall = "CONTRIBUTOR_MISMATCH"
         reason = f"Signed contributor '{signed_contrib}' does NOT match expected contributor '{obs_contrib}'."
+    elif contrib_id_status == "CONTRIBUTION_CONTEXT_NOT_FOUND" or batch_status == "CONTRIBUTION_CONTEXT_NOT_FOUND":
+        overall = "CONTRIBUTION_CONTEXT_NOT_FOUND"
+        reason = contrib_id_reason or "Signed contribution not found in persistent backend records."
+    elif contrib_id_status == "PERSISTED_LINEAGE_INCONSISTENCY" or batch_status == "PERSISTED_LINEAGE_INCONSISTENCY":
+        overall = "PERSISTED_LINEAGE_INCONSISTENCY"
+        reason = (contrib_id_reason if contrib_id_status == "PERSISTED_LINEAGE_INCONSISTENCY" else batch_reason) or "Persisted lineage inconsistency detected."
     elif batch_status == "MISMATCH":
         overall = "BATCH_MISMATCH"
         reason = f"Signed batch '{signed_batch}' does NOT match expected batch '{obs_batch}'."
-    elif sig_status in ("VALID", "VALID_UNANCHORED") and digest_match:
+    elif contrib_id_status == "MISMATCH":
+        overall = "CONTRIBUTION_MISMATCH"
+        reason = f"Signed contribution '{signed_contrib_id}' does NOT match expected contribution '{obs_contrib_id}'."
+    elif sig_status in ("VALID", "VALID_UNANCHORED") and digest_match and contrib_status == "MATCH" and contrib_id_status in ("MATCH", "NOT_SPECIFIED") and batch_status in ("MATCH", "NOT_SPECIFIED"):
         overall = "PASS" if sig_status == "VALID" else "REVIEW"
         reason = (
-            "Cryptographic signature is VALID, anchored to the trusted key, and strictly bound to the dataset digest and contributor."
+            "Cryptographic signature is VALID, anchored to the trusted key, and strictly bound to the dataset digest, contributor, contribution, and batch."
             if overall == "PASS" else
             "Signature is mathematically valid but not from the local Ed25519 trust anchor."
         )

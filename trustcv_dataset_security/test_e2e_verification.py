@@ -87,6 +87,12 @@ sample_with_large_phash = [
 ]
 
 try:
+    db.register_contributor(
+        contributor_id="CONTRIB-PHASH-TEST",
+        display_name="pHash Test Contributor",
+        organization="Test Org",
+        source_id="TEST_RUNNER",
+    )
     db.record_dataset_analysis(
         dataset_name="Phash_Test_Dataset",
         dataset_digest="1111222233334444555566667777888899990000aaaabbbbccccddddeeee0001",

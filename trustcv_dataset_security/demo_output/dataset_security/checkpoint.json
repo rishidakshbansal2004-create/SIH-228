@@ -1,12 +1,12 @@
 {
   "canonicalization_version": "1.0",
-  "checkpoint_id": "dataset-checkpoint-182697dab92f85fb",
-  "latest_audit_hash": "8a2dac9ea1bb5e691b415607f46ea717eda03d9245767e659483cb204c367ef0",
-  "latest_sequence": 52,
+  "checkpoint_id": "dataset-checkpoint-34bfbd1e6f5cb63e",
+  "latest_audit_hash": "767d761b9e7519a97f3d02def28e1bc72a1ad7e362a5b180d321103324d6c8bd",
+  "latest_sequence": 160,
   "public_key": "bv47eh+nE1UqKmmnpTHbjQ7/o/jCValow2cmdGd67AQ=",
   "schema_version": "1.0",
-  "signature": "tN1NXNlQ02D8SA2VEA1TuxCgUe5KXejcMrOtAEn8pUY2130T65rPiE6mO5PgVUegsq5/XVjjUWi/d4UPsN4QBw==",
+  "signature": "F5cW2NdhGwuPCZf94L98QMpjQGulwBNpm4I49a0d9OjL23UIgGIToAyeVldAofbOwjOe+dCP78o9xaGmz6XWCQ==",
   "signing_key_id": "TRUSTCV-DATASET-C9C5ACECB7CBDD2B",
-  "timestamp": "2026-09-30T09:55:08Z",
+  "timestamp": "2026-10-08T20:58:05Z",
   "trust_anchor_id": "TRUSTCV-DATASET-LOCAL-DEFAULT"
 }
