@@ -23,8 +23,10 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
 DEFAULT_KEYS_DIR = Path(__file__).resolve().parent / "keys"
-DEFAULT_PRIVATE_KEY = DEFAULT_KEYS_DIR / "vendor_private_key.pem"
-DEFAULT_PUBLIC_KEY = DEFAULT_KEYS_DIR / "vendor_public_key.pem"
+_env_priv = os.environ.get("TRUSTCV_PRIVATE_KEY_PATH") or os.environ.get("TRUSTCV_MODEL_PRIVATE_KEY_PATH")
+DEFAULT_PRIVATE_KEY = Path(_env_priv) if _env_priv else (DEFAULT_KEYS_DIR / "vendor_private_key.pem")
+_env_pub = os.environ.get("TRUSTCV_PUBLIC_KEY_PATH") or os.environ.get("TRUSTCV_MODEL_PUBLIC_KEY_PATH")
+DEFAULT_PUBLIC_KEY = Path(_env_pub) if _env_pub else (DEFAULT_KEYS_DIR / "vendor_public_key.pem")
 REGISTRY_PATH = Path(__file__).resolve().parent / "trusted_registry.json"
 
 
@@ -90,8 +92,14 @@ def generate_keypair(
 
 
 def load_private_key(private_key_path: Path = DEFAULT_PRIVATE_KEY) -> ed25519.Ed25519PrivateKey:
+    env_key = os.environ.get("TRUSTCV_PRIVATE_KEY") or os.environ.get("TRUSTCV_MODEL_PRIVATE_KEY")
+    if env_key:
+        return serialization.load_pem_private_key(env_key.strip().encode("utf-8"), password=None)
     if not private_key_path.exists():
-        raise FileNotFoundError(f"Private key not found at {private_key_path}. Run --generate-keys first.")
+        raise FileNotFoundError(
+            f"Private key not found at {private_key_path}. "
+            "Set TRUSTCV_PRIVATE_KEY / TRUSTCV_PRIVATE_KEY_PATH, or run keygen."
+        )
     with open(private_key_path, "rb") as f:
         return serialization.load_pem_private_key(f.read(), password=None)
 
@@ -106,7 +114,7 @@ def load_public_key(public_key_path: Path = DEFAULT_PUBLIC_KEY) -> ed25519.Ed255
 def sign_model_file(
     model_path: str | Path,
     private_key_path: Path = DEFAULT_PRIVATE_KEY,
-    key_id: str = "vendor-key-primary",
+    key_id: str = "vendor-key-v2-rotated",
     update_ledger: bool = True,
 ) -> dict:
     """Sign a model file with Ed25519 and produce detached .sig and .manifest.json files."""
@@ -241,7 +249,7 @@ def verify_model_file(
         sig_bytes = base64.b64decode(sig_b64)
         public_key.verify(sig_bytes, digest.encode("utf-8"))
         print("\n" + "=" * 60)
-        print(" [✓] CRYPTOGRAPHIC SIGNATURE VERIFIED SUCCESSFULLY!")
+        print(" [OK] CRYPTOGRAPHIC SIGNATURE VERIFIED SUCCESSFULLY!")
         print(f"     Model:        {model_file.name}")
         print(f"     Digest:       sha256:{digest}")
         print(f"     Algorithm:    Ed25519")
@@ -272,7 +280,7 @@ def main():
     # Sign
     sign_p = subparsers.add_parser("sign", help="Sign a model file with Ed25519")
     sign_p.add_argument("model", help="Path to model file (e.g., best.pt)")
-    sign_p.add_argument("--key-id", default="vendor-key-primary", help="Key identifier")
+    sign_p.add_argument("--key-id", default="vendor-key-v2-rotated", help="Key identifier")
 
     # Verify
     verify_p = subparsers.add_parser("verify", help="Verify digital signature of a model")

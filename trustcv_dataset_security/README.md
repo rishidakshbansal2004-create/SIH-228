@@ -58,8 +58,7 @@ Hash-linked Audit Ledger
 
 - Authority passkey before dataset onboarding
 - SHA-256 fingerprinting
-- Signed dataset manifest verification
-- RSA-PSS / SHA-256 signature checking
+- Ed25519 / SHA-256 digital signature verification (with legacy RSA-PSS compatibility)
 - Dataset provenance checks
 - ZIP CRC integrity validation
 - Unsafe archive-member extension screening

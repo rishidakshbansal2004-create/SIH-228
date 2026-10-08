@@ -9,9 +9,21 @@ __pycache__/
 *.egg-info/
 .installed.cfg
 *.egg
+# Environment & Secrets
 .env
 .env.*
 !.env.example
+
+# Cryptographic Keys & Private Material (Local Only)
+*.pem
+*.key
+*.p12
+*.pfx
+*private_key*
+*private-key*
+!trusted_cv_model_integrity_final/keys/vendor_public_key.pem
+!*public*.pem
+!*public*.key
 
 # Node / React / Vite
 node_modules/
