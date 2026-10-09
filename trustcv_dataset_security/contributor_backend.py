@@ -44,6 +44,7 @@ import json
 import os
 import secrets
 import sqlite3
+import tempfile
 import threading
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
@@ -53,13 +54,29 @@ from typing import Any
 from PIL import Image
 
 APP = Path(__file__).resolve().parent
-RUNTIME = Path.home() / ".trustcv_dataset_security"
-RUNTIME.mkdir(parents=True, exist_ok=True)
+
+try:
+    RUNTIME = Path.home() / ".trustcv_dataset_security"
+    RUNTIME.mkdir(parents=True, exist_ok=True)
+except (PermissionError, OSError):
+    RUNTIME = Path(tempfile.gettempdir()) / ".trustcv_dataset_security"
+    RUNTIME.mkdir(parents=True, exist_ok=True)
+
 DEFAULT_DB_PATH = Path(os.environ.get("TRUSTCV_DB_PATH") or (RUNTIME / "dataset_contributors.db"))
-PROJECT_OUTPUT = APP / "demo_output" / "dataset_security"
-PROJECT_OUTPUT.mkdir(parents=True, exist_ok=True)
-MEDIA_DIR = APP / "demo_output" / "evidence_media"
-MEDIA_DIR.mkdir(parents=True, exist_ok=True)
+
+try:
+    PROJECT_OUTPUT = APP / "demo_output" / "dataset_security"
+    PROJECT_OUTPUT.mkdir(parents=True, exist_ok=True)
+except (PermissionError, OSError):
+    PROJECT_OUTPUT = RUNTIME / "demo_output" / "dataset_security"
+    PROJECT_OUTPUT.mkdir(parents=True, exist_ok=True)
+
+try:
+    MEDIA_DIR = APP / "demo_output" / "evidence_media"
+    MEDIA_DIR.mkdir(parents=True, exist_ok=True)
+except (PermissionError, OSError):
+    MEDIA_DIR = RUNTIME / "evidence_media"
+    MEDIA_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _utc_now_iso() -> str:

@@ -15,6 +15,7 @@ import base64
 import hashlib
 import json
 import secrets
+import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -25,18 +26,33 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
 APP = Path(__file__).resolve().parent
-RUNTIME = Path.home() / ".trustcv_dataset_security"
-RUNTIME.mkdir(parents=True, exist_ok=True)
+
+try:
+    RUNTIME = Path.home() / ".trustcv_dataset_security"
+    RUNTIME.mkdir(parents=True, exist_ok=True)
+except (PermissionError, OSError):
+    RUNTIME = Path(tempfile.gettempdir()) / ".trustcv_dataset_security"
+    RUNTIME.mkdir(parents=True, exist_ok=True)
 
 KEY_FILE = RUNTIME / "dataset_signing_private.pem"
 TRUST_FILE = RUNTIME / "dataset_trust_anchor.json"
 STATE_FILE = RUNTIME / "dataset_security_state.json"
 AUDIT_FILE = RUNTIME / "dataset_security_audit.jsonl"
 CHECKPOINT_FILE = RUNTIME / "dataset_security_checkpoint.json"
-PROJECT_OUTPUT = APP / "demo_output" / "dataset_security"
-PROJECT_OUTPUT.mkdir(parents=True, exist_ok=True)
-MANIFEST_OUTPUT = APP / "demo_output" / "signed_manifests"
-MANIFEST_OUTPUT.mkdir(parents=True, exist_ok=True)
+
+try:
+    PROJECT_OUTPUT = APP / "demo_output" / "dataset_security"
+    PROJECT_OUTPUT.mkdir(parents=True, exist_ok=True)
+except (PermissionError, OSError):
+    PROJECT_OUTPUT = RUNTIME / "demo_output" / "dataset_security"
+    PROJECT_OUTPUT.mkdir(parents=True, exist_ok=True)
+
+try:
+    MANIFEST_OUTPUT = APP / "demo_output" / "signed_manifests"
+    MANIFEST_OUTPUT.mkdir(parents=True, exist_ok=True)
+except (PermissionError, OSError):
+    MANIFEST_OUTPUT = RUNTIME / "signed_manifests"
+    MANIFEST_OUTPUT.mkdir(parents=True, exist_ok=True)
 
 CANONICALIZATION_VERSION = "1.0"
 SECURITY_SCHEMA_VERSION = "1.0"

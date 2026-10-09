@@ -1,4 +1,15 @@
 
+import sys
+from pathlib import Path
+
+# Ensure trustcv_dataset_security directory and repository root are on sys.path
+_current_dir = Path(__file__).resolve().parent
+_repo_root = _current_dir.parent
+if str(_current_dir) not in sys.path:
+    sys.path.insert(0, str(_current_dir))
+if str(_repo_root) not in sys.path:
+    sys.path.insert(1, str(_repo_root))
+
 import base64
 import hashlib
 import io
@@ -9,47 +20,89 @@ import time
 import zipfile
 from html import escape
 from collections import defaultdict
-from pathlib import Path
 from typing import Any, Optional, Union, Dict, List
 
 import numpy as np
 import pandas as pd
 import streamlit as st
 from PIL import Image, ImageOps
-from trustcv_mirad_dataset_security import (
-    canonicalize,
-    ensure_trust_anchor,
-    create_signed_dataset_manifest,
-    verify_signed_dataset_manifest,
-    persist_dataset_security_run,
-    replay_existing_provenance,
-    verify_dataset_audit,
-    verify_dataset_checkpoint,
-    create_signed_checkpoint as mirad_create_checkpoint,
-    get_persisted_security_paths,
-)
-from contributor_backend import (
-    get_contributor_backend,
-    store_sample_image,
-    get_sample_image,
-    get_sample_image_path,
-    get_provenance_chain,
-    verify_provenance_chain,
-    generate_assurance_report,
-    generate_provenance_export,
-    generate_audit_log_export,
-    generate_verification_export,
-    generate_manifest_export,
-    generate_findings_export,
-    get_dataset_hierarchy,
-)
-from ethereum_anchor import (
-    EthereumConfig,
-    AnchorResult,
-    anchor_checkpoint as eth_anchor_checkpoint,
-    verify_anchor as eth_verify_anchor,
-    get_ethereum_status,
-)
+
+try:
+    from trustcv_mirad_dataset_security import (
+        canonicalize,
+        ensure_trust_anchor,
+        create_signed_dataset_manifest,
+        verify_signed_dataset_manifest,
+        persist_dataset_security_run,
+        replay_existing_provenance,
+        verify_dataset_audit,
+        verify_dataset_checkpoint,
+        create_signed_checkpoint as mirad_create_checkpoint,
+        get_persisted_security_paths,
+    )
+except ImportError:
+    from trustcv_dataset_security.trustcv_mirad_dataset_security import (
+        canonicalize,
+        ensure_trust_anchor,
+        create_signed_dataset_manifest,
+        verify_signed_dataset_manifest,
+        persist_dataset_security_run,
+        replay_existing_provenance,
+        verify_dataset_audit,
+        verify_dataset_checkpoint,
+        create_signed_checkpoint as mirad_create_checkpoint,
+        get_persisted_security_paths,
+    )
+
+try:
+    from contributor_backend import (
+        get_contributor_backend,
+        store_sample_image,
+        get_sample_image,
+        get_sample_image_path,
+        get_provenance_chain,
+        verify_provenance_chain,
+        generate_assurance_report,
+        generate_provenance_export,
+        generate_audit_log_export,
+        generate_verification_export,
+        generate_manifest_export,
+        generate_findings_export,
+        get_dataset_hierarchy,
+    )
+except ImportError:
+    from trustcv_dataset_security.contributor_backend import (
+        get_contributor_backend,
+        store_sample_image,
+        get_sample_image,
+        get_sample_image_path,
+        get_provenance_chain,
+        verify_provenance_chain,
+        generate_assurance_report,
+        generate_provenance_export,
+        generate_audit_log_export,
+        generate_verification_export,
+        generate_manifest_export,
+        generate_findings_export,
+        get_dataset_hierarchy,
+    )
+
+try:
+    from ethereum_anchor import (
+        EthereumConfig,
+        AnchorResult,
+        anchor_checkpoint as eth_anchor_checkpoint,
+        verify_anchor as eth_verify_anchor,
+        get_ethereum_status,
+    )
+except ImportError:
+    from trustcv_dataset_security.ethereum_anchor import (
+        EthereumConfig,
+        AnchorResult,
+        anchor_checkpoint as eth_anchor_checkpoint,
+        verify_anchor as eth_verify_anchor,
+        get_ethereum_status,
+    )
 
 if st.runtime.exists():
     st.set_page_config(
