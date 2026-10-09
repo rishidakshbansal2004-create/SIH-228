@@ -13,6 +13,15 @@ __pycache__/
 .env
 .env.*
 !.env.example
+access_config.json
+TrustCV_access_config.json
+.streamlit/secrets.toml
+secrets.toml
+
+# SQLite & Runtime Databases
+*.db
+*.sqlite
+*.sqlite3
 
 # Cryptographic Keys & Private Material (Local Only)
 *.pem

@@ -1,0 +1,1 @@
+web: streamlit run trustcv_dataset_security/trustcv_final.py --server.address 0.0.0.0 --server.port $PORT --server.headless true

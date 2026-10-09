@@ -34,7 +34,10 @@ scratch/
 .env
 .env.*
 !.env.example
+access_config.json
 TrustCV_access_config.json
+.streamlit/secrets.toml
+secrets.toml
 *.pem
 *.key
 *.pass

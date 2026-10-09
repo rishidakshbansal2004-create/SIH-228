@@ -12,6 +12,7 @@ if str(_repo_root) not in sys.path:
 
 import base64
 import hashlib
+import os
 import io
 import json
 import secrets
@@ -132,7 +133,8 @@ def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 def load_passkey_hash():
-    """Load the operator passkey SHA-256 hash from Streamlit secrets (preferred),
+    """Load the operator passkey SHA-256 hash from Streamlit secrets (preferred)
+    or environment variables (e.g. Render/container deployments),
     with an optional plaintext secret or local file fallback for development."""
     # 1) Streamlit secrets: hash 
     try:
@@ -145,7 +147,13 @@ def load_passkey_hash():
     except Exception:
         pass  # no secrets.toml available
 
-    # 2) Streamlit secrets: plaintext passkey
+    # 2) Environment variables: SHA-256 hash (standard for Render / hosted deployments)
+    for env_key in ("TRUSTCV_PASSKEY_SHA256", "PASSKEY_SHA256"):
+        env_val = os.environ.get(env_key, "").strip().lower()
+        if env_val:
+            return env_val
+
+    # 3) Streamlit secrets: plaintext passkey
     try:
         plain = st.secrets.get("passkey", "")
         if not plain and "auth" in st.secrets:
@@ -155,7 +163,13 @@ def load_passkey_hash():
     except Exception:
         pass
 
-    # 3) Local file fallback (development only)
+    # 4) Environment variables: plaintext passkey
+    for env_key in ("TRUSTCV_PASSKEY", "PASSKEY"):
+        env_plain = os.environ.get(env_key, "").strip()
+        if env_plain:
+            return sha256_text(env_plain)
+
+    # 5) Local file fallback (development only)
     for config_path in (PASSKEY_FILE, LOCAL_PASSKEY_FILE):
         if not config_path.exists():
             continue
@@ -169,7 +183,7 @@ def load_passkey_hash():
 def verify_passkey(value: str):
     expected = load_passkey_hash()
     if not expected:
-        return False, "Operator passkey is not configured. Add `passkey_sha256` to Streamlit secrets."
+        return False, "Operator passkey is not configured. Add `passkey_sha256` to Streamlit secrets or set `TRUSTCV_PASSKEY_SHA256`."
     supplied = sha256_text(value or "")
     ok = secrets.compare_digest(supplied, expected)
     return ok, "Operator passkey verified." if ok else "Invalid operator passkey."
